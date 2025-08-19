@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/html
+    environment:
+      - COMPOSER_ALLOW_SUPERUSER=1
+    networks:
+      - gosat-network
+  worker:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: gosat-worker
+    volumes:
+      - ./:/var/www/html
+    restart: unless-stopped
+    command: "php artisan queue:work --tries=3 --timeout=30 --queue=high,default"
+    depends_on:
+      - app
+    networks:
+      - gosat-network
+
+  nginx:
+    image: nginx:stable
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./letsencrypt:/etc/letsencrypt:ro
+      - ./docker/nginx/certbot-www:/var/www/certbot:ro
+    depends_on:
+      - app
+      - certbot
+    networks:
+      - gosat-network
+
+  postgres:
+    image: postgres:15
+    container_name: gosat-postgres
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - gosat-network
+
+  redis:
+    image: redis:7
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - "6379:6379"
+    networks:
+      - gosat-network
+
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./letsencrypt:/etc/letsencrypt
+      - ./docker/nginx/certbot-www:/var/www/certbot
+    entrypoint: ["/bin/sh", "-c", "sleep 1 && tail -f /dev/null"]
+
+volumes:
+  pgdata:
+
+networks:
+  gosat-network:
+    driver: bridge

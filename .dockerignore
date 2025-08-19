@@ -1,0 +1,6 @@
+.git
+vendor
+node_modules
+.DS_Store
+.env
+docker/nginx/certs
