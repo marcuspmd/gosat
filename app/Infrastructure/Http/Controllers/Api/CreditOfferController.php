@@ -14,16 +14,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use InvalidArgumentException;
-
 class CreditOfferController extends Controller
 {
     public function __construct(
         private readonly CreditOfferApplicationService $applicationService
     ) {}
 
-    /**
-     * Iniciar uma nova consulta de crédito.
-     */
     public function search(Request $request): JsonResponse
     {
         $request->validate([
@@ -52,9 +48,6 @@ class CreditOfferController extends Controller
         }
     }
 
-    /**
-     * Verificar o status de uma consulta de crédito.
-     */
     public function status(string $requestId): JsonResponse
     {
         try {
@@ -83,9 +76,6 @@ class CreditOfferController extends Controller
         }
     }
 
-    /**
-     * Simular uma oferta de crédito específica.
-     */
     public function simulate(CreditSimulationRequest $request): JsonResponse
     {
         try {
@@ -113,9 +103,6 @@ class CreditOfferController extends Controller
         }
     }
 
-    /**
-     * Listar ofertas de crédito para um CPF específico.
-     */
     public function offers(Request $request): JsonResponse
     {
         $request->validate([
@@ -149,9 +136,6 @@ class CreditOfferController extends Controller
         }
     }
 
-    /**
-     * Health check para verificar se o serviço está funcionando.
-     */
     public function health(): JsonResponse
     {
         return response()->json([

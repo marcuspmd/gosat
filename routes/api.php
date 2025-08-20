@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Infrastructure\Http\Controllers\Api\CreditOfferController;
+use App\Infrastructure\Http\Controllers\Api\SwaggerController;
 use App\Infrastructure\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,13 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// API Documentation routes
+Route::get('/docs', [SwaggerController::class, 'docs'])->name('api.docs');
+Route::get('/docs.json', [SwaggerController::class, 'json'])
+    ->middleware(\App\Http\Middleware\FixSwaggerResponse::class)
+    ->name('api.docs.json');
+Route::post('/docs/generate', [SwaggerController::class, 'generate'])->name('api.docs.generate');
 
 Route::prefix('v1')->group(function () {
 

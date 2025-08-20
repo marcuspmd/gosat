@@ -25,10 +25,13 @@ ARGS ?= $(filter-out $@,$(MAKECMDGOALS))
 	@:
 
 
-.PHONY: help artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test exec optimize-reload pint pint-test
+.PHONY: help up down build artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test exec optimize-reload pint pint-test swagger-generate swagger-serve swagger-docs
 
 help:
 	@echo "Makefile targets:"
+	@echo "  make up                              # inicia todos os containers (docker compose up -d)"
+	@echo "  make down                            # para todos os containers (docker compose down)"
+	@echo "  make build                           # reconstrói e inicia containers (docker compose up -d --build)"
 	@echo "  make artisan -- migrate              # roda php artisan <CMD> no container $(APP_SERVICE)"
 	@echo "  make tinker                          # abre php artisan tinker dentro do container"
 	@echo "  make migrate                         # roda php artisan migrate"
@@ -42,6 +45,19 @@ help:
 	@echo "  make pint-test                       # verifica estilo do código sem corrigir"
 	@echo "  make exec -- bash                     # abre um shell (ou comando) no container"
 	@echo "  make optimize-reload                   # atualiza autoload, limpa caches e reinicia workers"
+	@echo "  make swagger-generate                  # gera documentação OpenAPI/Swagger"
+	@echo "  make swagger-serve                     # abre a documentação Swagger no navegador"
+	@echo "  make swagger-docs                      # gera docs e abre no navegador"
+
+# Docker commands
+up:
+	docker compose up -d
+
+down:
+	docker compose down
+
+build:
+	docker compose up -d --build
 
 # Executa php artisan <CMD> no container app
 artisan:
@@ -123,4 +139,30 @@ optimize-reload:
 	$(DOCKER_EXEC) php artisan optimize:clear
 	# sinaliza para reiniciar os workers (supervisor/queue workers irão reiniciar ao fim do job atual)
 	$(DOCKER_EXEC) php artisan queue:restart
+
+## Swagger/OpenAPI Documentation targets
+
+# Gera documentação OpenAPI/Swagger
+swagger-generate:
+	@if [ -n "$(ARGS)" ]; then \
+		$(DOCKER_EXEC) php artisan swagger:generate $(ARGS); \
+	else \
+		$(DOCKER_EXEC) php artisan swagger:generate; \
+	fi
+
+# Abre a documentação Swagger no navegador (macOS/Linux)
+swagger-serve:
+	@echo "🌐 Abrindo documentação Swagger..."
+	@echo "   • Swagger UI: http://localhost:8080/api/docs"
+	@echo "   • JSON spec: http://localhost:8080/api/docs.json"
+	@if command -v open >/dev/null 2>&1; then \
+		open "http://localhost:8080/api/docs"; \
+	elif command -v xdg-open >/dev/null 2>&1; then \
+		xdg-open "http://localhost:8080/api/docs"; \
+	else \
+		echo "   Abra manualmente: http://localhost:8080/api/docs"; \
+	fi
+
+# Gera documentação e abre no navegador
+swagger-docs: swagger-generate swagger-serve
 
