@@ -25,7 +25,7 @@ ARGS ?= $(filter-out $@,$(MAKECMDGOALS))
 	@:
 
 
-.PHONY: help artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test exec
+.PHONY: help artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test exec optimize-reload pint pint-test
 
 help:
 	@echo "Makefile targets:"
@@ -38,7 +38,10 @@ help:
 	@echo "  make composer -- install              # roda composer no container (passe argumentos via --)"
 	@echo "  make pest-test -- NomeDoTeste         # roda php artisan pest:test no container"
 	@echo "  make test                            # roda php artisan test"
+	@echo "  make pint                            # corrige estilo do código com Laravel Pint"
+	@echo "  make pint-test                       # verifica estilo do código sem corrigir"
 	@echo "  make exec -- bash                     # abre um shell (ou comando) no container"
+	@echo "  make optimize-reload                   # atualiza autoload, limpa caches e reinicia workers"
 
 # Executa php artisan <CMD> no container app
 artisan:
@@ -94,4 +97,30 @@ exec:
 	else \
 		$(DOCKER_EXEC) bash; \
 	fi
+
+
+# Laravel Pint - corrige estilo do código
+pint:
+	@if [ -n "$(ARGS)" ]; then \
+		$(DOCKER_EXEC) ./vendor/bin/pint $(ARGS); \
+	else \
+		$(DOCKER_EXEC) ./vendor/bin/pint; \
+	fi
+
+# Laravel Pint - verifica estilo sem corrigir
+pint-test:
+	@if [ -n "$(ARGS)" ]; then \
+		$(DOCKER_EXEC) ./vendor/bin/pint --test $(ARGS); \
+	else \
+		$(DOCKER_EXEC) ./vendor/bin/pint --test; \
+	fi
+
+## Atualiza autoload, limpa otimizações e reinicia workers
+optimize-reload:
+	# roda composer dump-autoload -o
+	$(DOCKER_EXEC) composer dump-autoload -o
+	# limpa caches otimizados
+	$(DOCKER_EXEC) php artisan optimize:clear
+	# sinaliza para reiniciar os workers (supervisor/queue workers irão reiniciar ao fim do job atual)
+	$(DOCKER_EXEC) php artisan queue:restart
 

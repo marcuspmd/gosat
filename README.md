@@ -1,5 +1,100 @@
 
-# gosat
+# GoSat - Sistema de Consulta de Crédito
+
+Sistema DDD em Laravel para consulta e simulação de ofertas de crédito, integrando com APIs externas.
+
+## 🎯 Funcionalidades Principais
+
+- ✅ Consulta de ofertas de crédito por CPF
+- ✅ Simulação de crédito com valores e parcelas
+- ✅ Integração com API externa via jobs assíncronos
+- ✅ Normalização de modalidades de crédito
+- ✅ API REST completa com documentação
+- ✅ Arquitetura DDD com separação de responsabilidades
+
+## 🚀 Setup Rápido
+
+```bash
+# 1. Configurar ambiente
+cp .env.example .env
+
+# 2. Subir containers
+docker compose up -d --build
+
+# 3. Instalar dependências e migrar
+make composer -- install
+make artisan -- migrate
+make artisan -- db:seed
+
+# 4. Acessar aplicação
+# http://localhost:8080
+```
+
+## 📊 Endpoints da API
+
+### Consulta de Crédito
+```bash
+# Iniciar consulta
+POST /api/v1/credit/search
+{
+  "cpf": "12345678909"
+}
+
+# Verificar status
+GET /api/v1/credit/status/{requestId}
+
+# Simular oferta
+POST /api/v1/credit/simulate
+{
+  "cpf": "12345678909",
+  "amount": 10000,
+  "installments": 12
+}
+
+# Health check
+GET /api/v1/health
+```
+
+## 🔧 Comandos Principais
+
+```bash
+make test              # Executar testes
+make artisan -- ...    # Comandos Artisan
+make composer -- ...   # Comandos Composer
+make exec -- bash      # Abrir shell no container
+```
+
+## 🏗️ Arquitetura DDD
+
+```
+app/
+├── Domain/           # Regras de negócio
+│   ├── Credit/       # Contexto de Crédito
+│   ├── Customer/     # Contexto de Cliente
+│   ├── Integration/  # Contexto de Integração
+│   └── Shared/       # Value Objects compartilhados
+├── Application/      # Casos de uso e DTOs
+└── Infrastructure/   # Implementações técnicas
+    ├── Http/         # Controllers e Resources
+    ├── Persistence/  # Repositories Eloquent
+    └── Queue/        # Jobs e Queue Service
+```
+
+## 📝 CPFs de Teste
+
+Para desenvolvimento, use estes CPFs válidos:
+- `11111111111`
+- `12312312312`
+- `22222222222`
+
+## 🔍 Monitoramento
+
+- Logs estruturados com contexto mascarado de CPF
+- Jobs com retry automático e backoff exponencial
+- Health check endpoint para monitoramento
+- Tratamento de erros com notificações planejadas
+
+---
 
 Ambiente de desenvolvimento com Docker (PHP 8.4 FPM, Nginx, Postgres, Redis) e suporte para certificados via Let's Encrypt (Certbot).
 
