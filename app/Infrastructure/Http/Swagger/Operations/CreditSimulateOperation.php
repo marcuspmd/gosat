@@ -27,6 +27,21 @@ use OpenApi\Attributes as OA;
             description: 'Dados de entrada inválidos',
             content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
         ),
+        new OA\Response(
+            response: 404,
+            description: 'Nenhuma oferta disponível para os parâmetros informados',
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'error', type: 'string', example: 'no_offers'),
+                    new OA\Property(property: 'message', type: 'string', example: 'Nenhuma oferta disponível para os parâmetros informados'),
+                ]
+            )
+        ),
+        new OA\Response(
+            response: 422,
+            description: 'Erro de validação',
+            content: new OA\JsonContent(ref: '#/components/schemas/ValidationError')
+        ),
     ]
 )]
 class CreditSimulateOperation {}

@@ -58,6 +58,22 @@ use OpenApi\Attributes as OA;
     ]
 )]
 #[OA\Schema(
+    schema: 'CreditOfferBasic',
+    title: 'Credit Offer Basic',
+    description: 'Estrutura básica de uma oferta de crédito',
+    type: 'object',
+    properties: [
+        new OA\Property(property: 'institution_name', description: 'Nome da instituição', type: 'string', example: 'Banco Bradesco'),
+        new OA\Property(property: 'modality_name', description: 'Nome da modalidade', type: 'string', example: 'Crédito Pessoal'),
+        new OA\Property(property: 'max_amount_cents', description: 'Valor máximo em centavos', type: 'integer', example: 5000000),
+        new OA\Property(property: 'min_amount_cents', description: 'Valor mínimo em centavos', type: 'integer', example: 100000),
+        new OA\Property(property: 'max_installments', description: 'Número máximo de parcelas', type: 'integer', example: 60),
+        new OA\Property(property: 'min_installments', description: 'Número mínimo de parcelas', type: 'integer', example: 1),
+        new OA\Property(property: 'monthly_interest_rate', description: 'Taxa de juros mensal', type: 'number', format: 'float', example: 0.012),
+        new OA\Property(property: 'created_at', description: 'Data de criação', type: 'string', format: 'date-time', example: '2023-12-01T10:30:00Z'),
+    ]
+)]
+#[OA\Schema(
     schema: 'CreditOffer',
     title: 'Credit Offer',
     description: 'Representa uma oferta de crédito disponível para um cliente',
@@ -86,10 +102,11 @@ use OpenApi\Attributes as OA;
     properties: [
         new OA\Property(property: 'cpf', type: 'string', example: '12345678901'),
         new OA\Property(property: 'total_offers', type: 'integer', example: 3),
+        new OA\Property(property: 'limit', type: 'integer', example: 10),
         new OA\Property(
             property: 'offers',
             type: 'array',
-            items: new OA\Items(ref: '#/components/schemas/CreditOffer')
+            items: new OA\Items(ref: '#/components/schemas/CreditOfferBasic')
         ),
     ]
 )]

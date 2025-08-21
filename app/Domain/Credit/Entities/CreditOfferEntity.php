@@ -23,6 +23,7 @@ final class CreditOfferEntity
         public InterestRate $monthlyInterestRate,
         public InstallmentCount $minInstallments,
         public InstallmentCount $maxInstallments,
+        public ?string $requestId = null,
         public ?string $errorMessage = null,
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
@@ -44,6 +45,7 @@ final class CreditOfferEntity
             'monthly_interest_rate' => $this->monthlyInterestRate,
             'min_installments' => $this->minInstallments,
             'max_installments' => $this->maxInstallments,
+            'request_id' => $this->requestId,
             'error_message' => $this->errorMessage,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
@@ -69,6 +71,7 @@ final class CreditOfferEntity
             monthlyInterestRate: new InterestRate($model->monthly_interest_rate ?? 0.0),
             minInstallments: new InstallmentCount($model->min_installments),
             maxInstallments: new InstallmentCount($model->max_installments),
+            requestId: $model->request_id,
             errorMessage: $model->error_message,
             createdAt: $model->created_at,
             updatedAt: $model->updated_at
@@ -87,6 +90,7 @@ final class CreditOfferEntity
         $model->monthly_interest_rate = $this->monthlyInterestRate->monthlyRate;
         $model->min_installments = $this->minInstallments->value;
         $model->max_installments = $this->maxInstallments->value;
+        $model->request_id = $this->requestId;
         $model->error_message = $this->errorMessage;
         $model->created_at = $this->createdAt;
         $model->updated_at = $this->updatedAt;
@@ -104,6 +108,7 @@ final class CreditOfferEntity
         $model->monthly_interest_rate = $this->monthlyInterestRate->monthlyRate;
         $model->min_installments = $this->minInstallments->value;
         $model->max_installments = $this->maxInstallments->value;
+        $model->request_id = $this->requestId;
         $model->error_message = $this->errorMessage;
         $model->updated_at = $this->updatedAt;
     }

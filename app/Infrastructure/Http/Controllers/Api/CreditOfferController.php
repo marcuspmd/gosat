@@ -105,6 +105,79 @@ class CreditOfferController extends Controller
         }
     }
 
+    public function getRequestStatus(string $requestId): JsonResponse
+    {
+        try {
+            // Validate UUID format
+            if (! preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $requestId)) {
+                return response()->json([
+                    'error' => 'invalid_request_id',
+                    'message' => 'ID de requisição inválido',
+                ], 400);
+            }
+
+            // Check if there are any jobs running for this request_id
+            $pendingJob = DB::table('jobs')
+                ->where('payload', 'like', '%"creditRequestId":"' . $requestId . '"%')
+                ->first();
+
+            if ($pendingJob) {
+                return response()->json([
+                    'request_id' => $requestId,
+                    'status' => 'processing',
+                    'message' => 'Consulta ainda em processamento',
+                    'created_at' => date('c', $pendingJob->created_at),
+                    'attempts' => $pendingJob->attempts,
+                ]);
+            }
+
+            // Check if there are any failed jobs for this request_id
+            $failedJob = DB::table('failed_jobs')
+                ->where('payload', 'like', '%"creditRequestId":"' . $requestId . '"%')
+                ->first();
+
+            if ($failedJob) {
+                return response()->json([
+                    'request_id' => $requestId,
+                    'status' => 'failed',
+                    'message' => 'Consulta falhou - erro no processamento',
+                    'failed_at' => $failedJob->failed_at,
+                    'error' => 'Erro interno durante o processamento',
+                ]);
+            }
+
+            // Check if we have offers that were created with this request_id
+            $offersCount = DB::table('credit_offers')
+                ->where('request_id', $requestId)
+                ->whereNull('deleted_at')
+                ->count();
+
+            if ($offersCount > 0) {
+                return response()->json([
+                    'request_id' => $requestId,
+                    'status' => 'completed',
+                    'message' => 'Consulta concluída com sucesso',
+                    'offers_found' => $offersCount,
+                ]);
+            }
+
+            // If no job found and no offers, the request was probably completed but with no results
+            // Or it's an invalid request_id
+            return response()->json([
+                'request_id' => $requestId,
+                'status' => 'completed',
+                'message' => 'Consulta concluída - nenhuma oferta encontrada',
+                'offers_found' => 0,
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'internal_error',
+                'message' => 'Erro ao verificar status da consulta',
+            ], 500);
+        }
+    }
+
     public function getCreditOffers(Request $request): JsonResponse
     {
         $request->validate([

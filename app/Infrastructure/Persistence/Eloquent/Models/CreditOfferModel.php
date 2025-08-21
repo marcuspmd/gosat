@@ -24,6 +24,7 @@ class CreditOfferModel extends Model
         'monthly_interest_rate',
         'min_installments',
         'max_installments',
+        'request_id',
         'error_message',
     ];
 

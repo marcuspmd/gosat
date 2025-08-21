@@ -22,10 +22,10 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Parameter(
             name: 'limit',
-            description: 'Número máximo de ofertas a retornar (1-10)',
+            description: 'Número máximo de ofertas a retornar (1-100)',
             in: 'query',
             required: false,
-            schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 10, default: 3, example: 3)
+            schema: new OA\Schema(type: 'integer', minimum: 1, maximum: 100, default: 10, example: 10)
         ),
     ],
     responses: [

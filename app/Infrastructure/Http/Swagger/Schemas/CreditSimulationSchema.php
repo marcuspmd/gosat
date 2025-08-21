@@ -11,7 +11,7 @@ use OpenApi\Attributes as OA;
     title: 'Credit Simulation Request',
     description: 'Dados para simular uma oferta de crédito',
     type: 'object',
-    required: ['cpf'],
+    required: ['cpf', 'valor_desejado', 'quantidade_parcelas'],
     properties: [
         new OA\Property(
             property: 'cpf',
@@ -21,26 +21,25 @@ use OpenApi\Attributes as OA;
             example: '12345678901'
         ),
         new OA\Property(
-            property: 'offer_id',
-            description: 'ID da oferta de crédito (opcional)',
-            type: 'string',
-            format: 'uuid',
-            example: '550e8400-e29b-41d4-a716-446655440000'
-        ),
-        new OA\Property(
-            property: 'amount',
+            property: 'valor_desejado',
             description: 'Valor desejado em centavos',
             type: 'integer',
             minimum: 100,
-            example: 100000
+            example: 5000000
         ),
         new OA\Property(
-            property: 'installments',
+            property: 'quantidade_parcelas',
             description: 'Número de parcelas desejadas',
             type: 'integer',
             minimum: 1,
-            maximum: 120,
-            example: 12
+            example: 24
+        ),
+        new OA\Property(
+            property: 'modalidade',
+            description: 'Modalidade específica (opcional)',
+            type: 'string',
+            nullable: true,
+            example: 'Crédito Pessoal'
         ),
     ]
 )]
@@ -67,18 +66,56 @@ use OpenApi\Attributes as OA;
     ]
 )]
 #[OA\Schema(
+    schema: 'CreditSimulationOffer',
+    title: 'Credit Simulation Offer',
+    description: 'Detalhes de uma oferta simulada',
+    type: 'object',
+    properties: [
+        new OA\Property(property: 'instituicaoFinanceira', description: 'Nome da instituição', type: 'string', example: 'Banco Bradesco'),
+        new OA\Property(property: 'modalidadeCredito', description: 'Modalidade de crédito', type: 'string', example: 'Crédito Pessoal'),
+        new OA\Property(property: 'valorSolicitado', description: 'Valor solicitado em centavos', type: 'integer', example: 5000000),
+        new OA\Property(property: 'valorAPagar', description: 'Valor total a pagar em centavos', type: 'integer', example: 6200000),
+        new OA\Property(property: 'taxaJurosMensal', description: 'Taxa de juros mensal', type: 'number', format: 'float', example: 0.012),
+        new OA\Property(property: 'taxaJurosAnual', description: 'Taxa de juros anual', type: 'number', format: 'float', example: 0.144),
+        new OA\Property(property: 'qntParcelas', description: 'Número de parcelas', type: 'integer', example: 24),
+        new OA\Property(property: 'parcelaMensal', description: 'Valor da parcela mensal em centavos', type: 'integer', example: 258333),
+        new OA\Property(property: 'totalJuros', description: 'Total de juros em centavos', type: 'integer', example: 1200000),
+        new OA\Property(property: 'taxaJuros', description: 'Taxa de juros (duplicado)', type: 'number', format: 'float', example: 0.012),
+        new OA\Property(
+            property: 'limites',
+            description: 'Limites disponíveis para esta modalidade',
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'valorMinimo', type: 'integer', example: 100000),
+                new OA\Property(property: 'valorMaximo', type: 'integer', example: 10000000),
+                new OA\Property(property: 'parcelasMinima', type: 'integer', example: 1),
+                new OA\Property(property: 'parcelasMaxima', type: 'integer', example: 60),
+            ]
+        ),
+    ]
+)]
+#[OA\Schema(
     schema: 'CreditSimulationResponse',
     title: 'Credit Simulation Response',
     description: 'Resultado da simulação de crédito',
     type: 'object',
     properties: [
+        new OA\Property(property: 'status', type: 'string', enum: ['success'], example: 'success'),
         new OA\Property(property: 'cpf', type: 'string', example: '12345678901'),
-        new OA\Property(property: 'requested_amount', ref: '#/components/schemas/MoneyValue'),
-        new OA\Property(property: 'installments', type: 'integer', example: 12),
-        new OA\Property(property: 'monthly_payment', ref: '#/components/schemas/MoneyValue'),
-        new OA\Property(property: 'total_amount', ref: '#/components/schemas/MoneyValue'),
-        new OA\Property(property: 'total_interest', ref: '#/components/schemas/MoneyValue'),
-        new OA\Property(property: 'interest_rate', ref: '#/components/schemas/InterestRate'),
+        new OA\Property(
+            property: 'parametros',
+            type: 'object',
+            properties: [
+                new OA\Property(property: 'valor_desejado', type: 'integer', example: 5000000),
+                new OA\Property(property: 'quantidade_parcelas', type: 'integer', example: 24),
+            ]
+        ),
+        new OA\Property(
+            property: 'ofertas',
+            type: 'array',
+            items: new OA\Items(ref: '#/components/schemas/CreditSimulationOffer')
+        ),
+        new OA\Property(property: 'total_ofertas_encontradas', type: 'integer', example: 3),
     ]
 )]
 class CreditSimulationSchema {}

@@ -50,7 +50,8 @@ final class ExternalCreditMapper
                 $creditOffers[] = $this->createCreditOffer(
                     cpf: $dto->cpf,
                     institutionDto: $institutionDto,
-                    modalityDto: $modalityDto
+                    modalityDto: $modalityDto,
+                    requestId: $dto->creditRequestId
                 );
             }
         }
@@ -70,7 +71,8 @@ final class ExternalCreditMapper
     private function createCreditOffer(
         CPF $cpf,
         ExternalCreditInstitutionDto $institutionDto,
-        ExternalCreditModalityDto $modalityDto
+        ExternalCreditModalityDto $modalityDto,
+        string $requestId
     ): CreditOfferEntity {
 
         // Find or create customer
@@ -92,7 +94,8 @@ final class ExternalCreditMapper
             maxAmount: Money::fromCents($modalityDto->offer->maxAmountInCents),
             monthlyInterestRate: new InterestRate($modalityDto->offer->interestRate),
             minInstallments: new InstallmentCount($modalityDto->offer->minInstallments),
-            maxInstallments: new InstallmentCount($modalityDto->offer->maxInstallments)
+            maxInstallments: new InstallmentCount($modalityDto->offer->maxInstallments),
+            requestId: $requestId
         );
 
         $this->creditOfferRepository->save($creditOffer);

@@ -39,6 +39,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/search', [CreditOfferController::class, 'creditRequest'])
             ->name('creditSearch');
 
+        Route::get('/status/{requestId}', [CreditOfferController::class, 'getRequestStatus'])
+            ->name('getRequestStatus');
+
         Route::get('/customers-with-offers', [CreditOfferController::class, 'getAllCustomersWithOffers'])
             ->name('customersWithOffers');
 
