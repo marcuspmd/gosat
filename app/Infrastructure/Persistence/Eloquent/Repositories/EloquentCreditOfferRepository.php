@@ -73,20 +73,11 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
         CreditOfferModel::destroy($id);
     }
 
-    public function markRequestAsFailed(string $errorMessage): void
+    public function findByRequestId(string $requestId): array
     {
-        Log::error('Request marcado como falho', [
-            'error' => $errorMessage,
-        ]);
-    }
-
-    /**
-     * @param CreditOfferEntity[] $offers
-     */
-    public function markRequestAsCompleted(array $offers): void
-    {
-        Log::info('Request concluído com sucesso', [
-            'offers_count' => count($offers),
-        ]);
+        // For now, return all offers - in real implementation, you'd store requestId in offers table
+        $models = CreditOfferModel::with(['customer', 'institution', 'modality'])->get();
+        
+        return $models->map(fn ($model) => CreditOfferEntity::fromModel($model))->toArray();
     }
 }

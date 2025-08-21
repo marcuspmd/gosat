@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Infrastructure\Http\Controllers\Api;
 
 use App\Application\Services\CreditOfferApplicationService;
-use App\Infrastructure\Http\Resources\CreditRequestResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -26,12 +25,13 @@ class CreditOfferController extends Controller
         ]);
 
         try {
-            $result = $this->applicationService->processCreditsRequest($request->cpf);
+            $requestId = $this->applicationService->processCreditsRequest($request->cpf);
 
-            return response()->json(
-                new CreditRequestResource($result),
-                202
-            );
+            return response()->json([
+                'request_id' => $requestId,
+                'status' => 'processing',
+                'message' => 'Consulta em andamento. Use o request_id para verificar o status.'
+            ], 202);
 
         } catch (InvalidArgumentException $e) {
             return response()->json([

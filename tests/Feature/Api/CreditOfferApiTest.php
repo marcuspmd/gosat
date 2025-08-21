@@ -38,14 +38,8 @@ describe('Credit Offer API', function () {
         $response->assertStatus(202)
             ->assertJsonStructure([
                 'request_id',
-                'cpf',
                 'status',
                 'message',
-                'created_at',
-                'links' => [
-                    'status',
-                    'self',
-                ],
             ])
             ->assertJson([
                 'status' => 'processing',

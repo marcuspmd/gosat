@@ -13,13 +13,11 @@ interface CreditOfferRepositoryInterface
 
     public function findByCpf(CPF $cpf): array;
 
+    public function findByRequestId(string $requestId): array;
+
     public function save(CreditOfferEntity $offer): void;
 
     public function saveAll(array $offers): void;
 
     public function delete(string $id): void;
-
-    public function markRequestAsFailed(string $errorMessage): void;
-
-    public function markRequestAsCompleted(array $offers): void;
 }

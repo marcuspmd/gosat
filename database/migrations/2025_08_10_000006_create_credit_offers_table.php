@@ -19,7 +19,6 @@ return new class () extends Migration {
             $table->integer('min_installments')->unsigned();
             $table->integer('max_installments')->unsigned();
             $table->decimal('monthly_interest_rate', 8, 6)->nullable();
-            $table->enum('status', ['pending', 'processing', 'completed', 'failed', 'expired'])->default('pending');
             $table->text('error_message')->nullable();
             $table->timestamps();
 
@@ -27,8 +26,7 @@ return new class () extends Migration {
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
             $table->foreign('modality_id')->references('id')->on('credit_modalities')->onDelete('cascade');
 
-            $table->index(['customer_id', 'status'], 'idx_credit_offers_customer_status');
-            $table->index(['status'], 'idx_credit_offers_status');
+            $table->index(['customer_id'], 'idx_credit_offers_customer');
             $table->index(['created_at'], 'idx_credit_offers_created');
         });
     }

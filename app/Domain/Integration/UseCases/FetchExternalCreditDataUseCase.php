@@ -14,6 +14,7 @@ use App\Domain\Integration\Mappers\ExternalCreditMapper;
 use App\Domain\Shared\Dtos\ExternalCreditDto;
 use App\Domain\Shared\ValueObjects\CPF;
 use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
+use Illuminate\Support\Facades\Log;
 
 final readonly class FetchExternalCreditDataUseCase
 {
@@ -53,16 +54,16 @@ final readonly class FetchExternalCreditDataUseCase
                 $this->creditOfferRepository->saveAll($creditOffers);
             }
 
-            $this->creditOfferRepository->markRequestAsCompleted([]);
 
             return $creditOffers;
 
         } catch (\Exception $e) {
-            $this->creditOfferRepository->markRequestAsFailed(
-                $creditRequestId,
-                $e->getMessage()
-            );
-
+            Log::error('Error fetching external credit data', [
+                'cpf' => $cpf->value,
+                'creditRequestId' => $creditRequestId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTrace(10)
+            ]);
             throw $e;
         }
     }

@@ -23,7 +23,6 @@ class CreditOfferModel extends Model
         'monthly_interest_rate',
         'min_installments',
         'max_installments',
-        'status',
         'error_message',
     ];
 
@@ -57,28 +56,4 @@ class CreditOfferModel extends Model
         return $query->where('customer_id', $customerId);
     }
 
-    public function scopeByStatus($query, string $status)
-    {
-        return $query->where('status', $status);
-    }
-
-    public function scopeCompleted($query)
-    {
-        return $query->where('status', 'completed');
-    }
-
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    public function scopeProcessing($query)
-    {
-        return $query->where('status', 'processing');
-    }
-
-    public function scopeFailed($query)
-    {
-        return $query->where('status', 'failed');
-    }
 }
