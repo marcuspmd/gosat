@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Credit\Entities;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
-use Illuminate\Support\Str;
 use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
+use DateTimeImmutable;
+use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 final class CreditModalityEntity
 {
@@ -57,7 +57,7 @@ final class CreditModalityEntity
 
     public function toModel(): CreditModalityModel
     {
-        $model = new CreditModalityModel();
+        $model = new CreditModalityModel;
         $model->id = $this->id;
         $model->standard_code = $this->standardCode;
         $model->name = $this->name;

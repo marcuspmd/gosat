@@ -33,5 +33,4 @@ class CustomerModel extends Model
     {
         return $query->where('cpf', $cpf);
     }
-
 }

@@ -28,7 +28,7 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
     public function findByCpf(CPF $cpf): array
     {
         $models = CreditOfferModel::with(['customer', 'institution', 'modality'])
-            ->whereHas('customer', function($query) use ($cpf) {
+            ->whereHas('customer', function ($query) use ($cpf) {
                 $query->where('cpf', $cpf->value);
             })
             ->get();
@@ -52,9 +52,7 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
     }
 
     /**
-     *
-     * @param CreditOfferEntity[] $offers
-     * @return void
+     * @param  CreditOfferEntity[]  $offers
      */
     public function saveAll(array $offers): void
     {
@@ -76,14 +74,14 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
     {
         // For now, return all offers - in real implementation, you'd store requestId in offers table
         $models = CreditOfferModel::with(['customer', 'institution', 'modality'])->get();
-        
+
         return $models->map(fn ($model) => CreditOfferEntity::fromModel($model))->toArray();
     }
 
     public function softDeleteByCpf(CPF $cpf): void
     {
         DB::transaction(function () use ($cpf) {
-            CreditOfferModel::whereHas('customer', function($query) use ($cpf) {
+            CreditOfferModel::whereHas('customer', function ($query) use ($cpf) {
                 $query->where('cpf', $cpf->value);
             })->delete(); // This will soft delete due to SoftDeletes trait
         });

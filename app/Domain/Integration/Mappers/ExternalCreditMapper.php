@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Integration\Mappers;
 
+use App\Domain\Credit\Entities\CreditModalityEntity;
 use App\Domain\Credit\Entities\CreditOfferEntity;
 use App\Domain\Credit\Entities\InstitutionEntity;
-use App\Domain\Credit\Entities\CreditModalityEntity;
 use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
 use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
@@ -17,9 +17,9 @@ use App\Domain\Shared\Dtos\ExternalCreditInstitutionDto;
 use App\Domain\Shared\Dtos\ExternalCreditModalityDto;
 use App\Domain\Shared\Dtos\ExternalCreditOfferDto;
 use App\Domain\Shared\ValueObjects\CPF;
+use App\Domain\Shared\ValueObjects\InstallmentCount;
 use App\Domain\Shared\ValueObjects\InterestRate;
 use App\Domain\Shared\ValueObjects\Money;
-use App\Domain\Shared\ValueObjects\InstallmentCount;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -30,11 +30,9 @@ final class ExternalCreditMapper
         private CreditModalityRepositoryInterface $creditModalityRepository,
         private CreditOfferRepositoryInterface $creditOfferRepository,
         private CustomerRepositoryInterface $customerRepository,
-    ) {
-    }
+    ) {}
 
     /**
-     * @param ExternalCreditDto $dto
      * @return CreditOfferEntity[]
      */
     public function mapToCreditOffers(
@@ -45,7 +43,7 @@ final class ExternalCreditMapper
         foreach ($dto->institutions as $institutionDto) {
             foreach ($institutionDto->modalities as $modalityDto) {
 
-                if (!$this->isValidOffer($modalityDto->offer)) {
+                if (! $this->isValidOffer($modalityDto->offer)) {
                     continue;
                 }
 
@@ -77,7 +75,7 @@ final class ExternalCreditMapper
 
         // Find or create customer
         $customer = $this->customerRepository->findByCpf($cpf);
-        if (!$customer) {
+        if (! $customer) {
             $customer = new CustomerEntity(
                 id: Str::uuid()->toString(),
                 cpf: $cpf
@@ -85,7 +83,7 @@ final class ExternalCreditMapper
             $this->customerRepository->save($customer);
         }
 
-        $creditOffer =  new CreditOfferEntity(
+        $creditOffer = new CreditOfferEntity(
             id: Str::uuid()->toString(),
             customer: $customer,
             institution: $this->createInstitution($institutionDto),
@@ -107,11 +105,11 @@ final class ExternalCreditMapper
     ): InstitutionEntity {
 
         $slug = Str::slug($institutionDto->name);
-        
+
         Log::info('Tentando criar/buscar instituição', [
             'institution_name' => $institutionDto->name,
             'generated_slug' => $slug,
-            'institution_id_from_dto' => $institutionDto->id
+            'institution_id_from_dto' => $institutionDto->id,
         ]);
 
         $institutionEntity = $this->institutionRepository->findBySlug($slug);
@@ -119,8 +117,9 @@ final class ExternalCreditMapper
         if ($institutionEntity) {
             Log::info('Instituição encontrada, retornando existente', [
                 'found_institution_id' => $institutionEntity->id,
-                'found_institution_name' => $institutionEntity->name
+                'found_institution_name' => $institutionEntity->name,
             ]);
+
             return $institutionEntity;
         }
 
@@ -137,7 +136,7 @@ final class ExternalCreditMapper
 
         Log::info('Nova instituição criada', [
             'new_institution_id' => $institutionEntity->id,
-            'new_institution_slug' => $institutionEntity->slug
+            'new_institution_slug' => $institutionEntity->slug,
         ]);
 
         return $institutionEntity;

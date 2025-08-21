@@ -81,6 +81,4 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'interest_rate', ref: '#/components/schemas/InterestRate'),
     ]
 )]
-class CreditSimulationSchema
-{
-}
+class CreditSimulationSchema {}

@@ -49,20 +49,20 @@ final readonly class ExternalCreditApiService
         Log::info('Iniciando requisição de crédito', [
             'endpoint' => $endpoint,
             'cpf' => $data->cpf->value,
-            'request_data' => $requestData
+            'request_data' => $requestData,
         ]);
 
         $result = $this->makeApiRequest('POST', $endpoint, $requestData);
 
         Log::info('Resposta da API de crédito recebida', [
             'response_size' => count($result),
-            'institutions_count' => count($result['instituicoes'] ?? [])
+            'institutions_count' => count($result['instituicoes'] ?? []),
         ]);
 
         $this->populateInstitutionData($data, $result);
 
         Log::info('Dados de instituições populados', [
-            'final_institutions_count' => count($data->institutions)
+            'final_institutions_count' => count($data->institutions),
         ]);
 
         return $data;
@@ -77,7 +77,7 @@ final readonly class ExternalCreditApiService
         $institutionModalityMap = [];
 
         Log::info('Iniciando população de dados de instituições', [
-            'institutions_received' => count($result['instituicoes'] ?? [])
+            'institutions_received' => count($result['instituicoes'] ?? []),
         ]);
 
         // Collect all offer requests as promises
@@ -86,7 +86,7 @@ final readonly class ExternalCreditApiService
             Log::info('Processando instituição', [
                 'institution_index' => $institutionIndex,
                 'institution_name' => $institution['nome'] ?? 'N/A',
-                'modalities_count' => count($modalities)
+                'modalities_count' => count($modalities),
             ]);
 
             foreach ($modalities as $modalityIndex => $modalityItem) {
@@ -99,14 +99,14 @@ final readonly class ExternalCreditApiService
                     'institution' => $institution,
                     'modality' => $modalityItem,
                     'institutionIndex' => $institutionIndex,
-                    'modalityIndex' => $modalityIndex
+                    'modalityIndex' => $modalityIndex,
                 ];
 
                 Log::info('Criando promise para modalidade', [
                     'key' => $key,
                     'institution_id' => $institutionId,
                     'modality_code' => $modalityCode,
-                    'modality_name' => $modalityItem['nome'] ?? 'N/A'
+                    'modality_name' => $modalityItem['nome'] ?? 'N/A',
                 ]);
 
                 $promises[$key] = $this->fetchOfferAsync($cpf, $institutionId, $modalityCode);
@@ -114,14 +114,14 @@ final readonly class ExternalCreditApiService
         }
 
         Log::info('Total de promises criadas', [
-            'promises_count' => count($promises)
+            'promises_count' => count($promises),
         ]);
 
         // Wait for all promises to settle
         $responses = Utils::settle($promises)->wait();
 
         Log::info('Todas as promises foram resolvidas', [
-            'responses_count' => count($responses)
+            'responses_count' => count($responses),
         ]);
 
         // Group responses by institution
@@ -136,13 +136,13 @@ final readonly class ExternalCreditApiService
                 'state' => $response['state'],
                 'institution_index' => $institutionIndex,
                 'modality_index' => $modalityIndex,
-                'modality_name' => $map['modality']['nome'] ?? 'N/A'
+                'modality_name' => $map['modality']['nome'] ?? 'N/A',
             ]);
 
-            if (!isset($institutionData[$institutionIndex])) {
+            if (! isset($institutionData[$institutionIndex])) {
                 $institutionData[$institutionIndex] = [
                     'institution' => $map['institution'],
-                    'modalities' => []
+                    'modalities' => [],
                 ];
             }
 
@@ -155,15 +155,15 @@ final readonly class ExternalCreditApiService
                         'max_installments' => $offer->maxInstallments ?? 'N/A',
                         'interest_rate' => $offer->interestRate ?? 'N/A',
                         'min_amount' => $offer->minAmountInCents ?? 'N/A',
-                        'max_amount' => $offer->maxAmountInCents ?? 'N/A'
-                    ]
+                        'max_amount' => $offer->maxAmountInCents ?? 'N/A',
+                    ],
                 ]);
             } else {
                 Log::warning('Promise rejeitada', [
                     'key' => $key,
-                    'reason' => $response['reason'] ?? 'Unknown'
+                    'reason' => $response['reason'] ?? 'Unknown',
                 ]);
-                $offer = new ExternalCreditOfferDto();
+                $offer = new ExternalCreditOfferDto;
             }
 
             $institutionData[$institutionIndex]['modalities'][$modalityIndex] = new ExternalCreditModalityDto(
@@ -176,7 +176,7 @@ final readonly class ExternalCreditApiService
 
         // Build final institution DTOs
         Log::info('Construindo DTOs finais de instituições', [
-            'institution_data_count' => count($institutionData)
+            'institution_data_count' => count($institutionData),
         ]);
 
         foreach ($institutionData as $instIndex => $instData) {
@@ -194,14 +194,14 @@ final readonly class ExternalCreditApiService
                 'institution_index' => $instIndex,
                 'institution_id' => $institutionDto->id,
                 'institution_name' => $institutionDto->name,
-                'modalities_count' => count($institutionDto->modalities)
+                'modalities_count' => count($institutionDto->modalities),
             ]);
 
             $data->institutions[] = $institutionDto;
         }
 
         Log::info('Finalização da população de dados', [
-            'total_institutions_added' => count($data->institutions)
+            'total_institutions_added' => count($data->institutions),
         ]);
 
         return $data;
@@ -234,7 +234,7 @@ final readonly class ExternalCreditApiService
                         'cpf' => $cpf->value,
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
-                        'status_code' => $statusCode
+                        'status_code' => $statusCode,
                     ]);
 
                     if ($statusCode !== 200) {
@@ -243,7 +243,7 @@ final readonly class ExternalCreditApiService
                             'institution_id' => $institutionId,
                             'modality_code' => $modalityCode,
                             'status_code' => $statusCode,
-                            'response_body' => $response->getBody()->getContents()
+                            'response_body' => $response->getBody()->getContents(),
                         ]);
 
                         throw new RuntimeException(
@@ -258,7 +258,7 @@ final readonly class ExternalCreditApiService
                         'cpf' => $cpf->value,
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
-                        'body' => $body
+                        'body' => $body,
                     ]);
 
                     $decoded = json_decode($body, true);
@@ -269,7 +269,7 @@ final readonly class ExternalCreditApiService
                             'institution_id' => $institutionId,
                             'modality_code' => $modalityCode,
                             'json_error' => json_last_error_msg(),
-                            'body' => $body
+                            'body' => $body,
                         ]);
 
                         throw new InvalidArgumentException('Resposta da API não é um JSON válido');
@@ -286,8 +286,8 @@ final readonly class ExternalCreditApiService
                             'max_installments' => $offerDto->maxInstallments,
                             'interest_rate' => $offerDto->interestRate,
                             'min_amount' => $offerDto->minAmountInCents,
-                            'max_amount' => $offerDto->maxAmountInCents
-                        ]
+                            'max_amount' => $offerDto->maxAmountInCents,
+                        ],
                     ]);
 
                     return $offerDto;
@@ -297,10 +297,10 @@ final readonly class ExternalCreditApiService
                         'cpf' => $cpf->value,
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
-                        'reason' => $reason instanceof Throwable ? $reason->getMessage() : (string) $reason
+                        'reason' => $reason instanceof Throwable ? $reason->getMessage() : (string) $reason,
                     ]);
 
-                    return new ExternalCreditOfferDto();
+                    return new ExternalCreditOfferDto;
                 }
             );
     }
@@ -314,8 +314,8 @@ final readonly class ExternalCreditApiService
                 'QntParcelaMax' => $data['QntParcelaMax'] ?? 'not_found',
                 'jurosMes' => $data['jurosMes'] ?? 'not_found',
                 'valorMin' => $data['valorMin'] ?? 'not_found',
-                'valorMax' => $data['valorMax'] ?? 'not_found'
-            ]
+                'valorMax' => $data['valorMax'] ?? 'not_found',
+            ],
         ]);
 
         $dto = new ExternalCreditOfferDto(
@@ -332,8 +332,8 @@ final readonly class ExternalCreditApiService
                 'max_installments' => $dto->maxInstallments,
                 'interest_rate' => $dto->interestRate,
                 'min_amount_cents' => $dto->minAmountInCents,
-                'max_amount_cents' => $dto->maxAmountInCents
-            ]
+                'max_amount_cents' => $dto->maxAmountInCents,
+            ],
         ]);
 
         return $dto;
@@ -344,7 +344,7 @@ final readonly class ExternalCreditApiService
         try {
             $options = $this->defaultOptions;
 
-            if (!empty($data)) {
+            if (! empty($data)) {
                 if (strtoupper($method) === 'GET') {
                     $options['query'] = $data;
                 } else {
@@ -366,7 +366,7 @@ final readonly class ExternalCreditApiService
             Log::debug('Body da resposta da API', [
                 'method' => $method,
                 'url' => $url,
-                'body' => $body
+                'body' => $body,
             ]);
 
             $decoded = json_decode($body, true);
@@ -376,7 +376,7 @@ final readonly class ExternalCreditApiService
                     'method' => $method,
                     'url' => $url,
                     'json_error' => json_last_error_msg(),
-                    'body' => $body
+                    'body' => $body,
                 ]);
 
                 throw new InvalidArgumentException('Resposta da API não é um JSON válido');
@@ -385,7 +385,7 @@ final readonly class ExternalCreditApiService
             Log::info('Resposta da API decodificada com sucesso', [
                 'method' => $method,
                 'url' => $url,
-                'response_keys' => array_keys($decoded ?? [])
+                'response_keys' => array_keys($decoded ?? []),
             ]);
 
             return $decoded ?? [];
@@ -398,5 +398,4 @@ final readonly class ExternalCreditApiService
             );
         }
     }
-
 }

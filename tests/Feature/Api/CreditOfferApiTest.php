@@ -98,23 +98,17 @@ describe('Credit Offer API', function () {
         $response->assertStatus(404); // Route não encontrada devido ao where constraint
     });
 
-    test('credit simulation with valid data succeeds', function () {
+    test('credit simulation with valid data but no offers returns 404', function () {
         $response = $this->postJson('/api/v1/credit/simulate', [
             'cpf' => '12345678909',
+            'valor_desejado' => 5000000, // R$ 50.000,00 em centavos
+            'quantidade_parcelas' => 24,
         ]);
 
-        $response->assertStatus(200)
+        $response->assertStatus(404)
             ->assertJsonStructure([
-                'cpf',
-                'requested_amount',
-                'requested_installments',
-                'simulations',
-                'total_simulations',
-                'status',
+                'error',
                 'message',
-                'best_offer',
-                'generated_at',
-                'links',
             ]);
     });
 

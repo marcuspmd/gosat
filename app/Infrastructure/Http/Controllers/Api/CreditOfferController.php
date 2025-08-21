@@ -15,8 +15,7 @@ class CreditOfferController extends Controller
 {
     public function __construct(
         private readonly CreditOfferApplicationService $applicationService
-    ) {
-    }
+    ) {}
 
     public function creditRequest(Request $request): JsonResponse
     {
@@ -30,7 +29,7 @@ class CreditOfferController extends Controller
             return response()->json([
                 'request_id' => $requestId,
                 'status' => 'processing',
-                'message' => 'Consulta em andamento. Use o request_id para verificar o status.'
+                'message' => 'Consulta em andamento. Use o request_id para verificar o status.',
             ], 202);
 
         } catch (InvalidArgumentException $e) {
@@ -88,14 +87,14 @@ class CreditOfferController extends Controller
                         'min_amount_cents' => $minAmount,
                         'max_amount_cents' => $maxAmount,
                         'min_installments' => $minInstallments,
-                        'max_installments' => $maxInstallments
-                    ]
+                        'max_installments' => $maxInstallments,
+                    ],
                 ];
             })->values();
 
             return response()->json([
                 'status' => 'success',
-                'data' => $groupedCustomers
+                'data' => $groupedCustomers,
             ]);
 
         } catch (\Exception) {
@@ -106,12 +105,67 @@ class CreditOfferController extends Controller
         }
     }
 
+    public function getCreditOffers(Request $request): JsonResponse
+    {
+        $request->validate([
+            'cpf' => 'required|string|regex:/^\d{11}$/',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        try {
+            $cpf = $request->query('cpf');
+            $limit = $request->query('limit', 10);
+
+            // Buscar ofertas para o CPF específico
+            $query = DB::table('customers')
+                ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
+                ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
+                ->join('credit_modalities', 'credit_offers.modality_id', '=', 'credit_modalities.id')
+                ->select(
+                    'institutions.name as institution_name',
+                    'credit_modalities.name as modality_name',
+                    'credit_offers.max_amount_cents',
+                    'credit_offers.min_amount_cents',
+                    'credit_offers.max_installments',
+                    'credit_offers.min_installments',
+                    'credit_offers.monthly_interest_rate',
+                    'credit_offers.created_at'
+                )
+                ->where('customers.cpf', $cpf)
+                ->where('customers.is_active', true)
+                ->whereNull('credit_offers.deleted_at')
+                ->orderBy('credit_offers.created_at', 'desc')
+                ->limit($limit);
+
+            $offers = $query->get();
+
+            return response()->json([
+                'cpf' => $cpf,
+                'offers' => $offers->toArray(),
+                'total_offers' => $offers->count(),
+                'limit' => $limit,
+            ]);
+
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'error' => 'validation_error',
+                'message' => $e->getMessage(),
+            ], 400);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'internal_error',
+                'message' => 'Erro ao buscar ofertas',
+            ], 500);
+        }
+    }
+
     public function simulateCredit(Request $request): JsonResponse
     {
         $request->validate([
             'cpf' => 'required|string|regex:/^\d{11}$/',
             'valor_desejado' => 'required|integer|min:100', // em centavos
-            'quantidade_parcelas' => 'required|integer|min:1'
+            'quantidade_parcelas' => 'required|integer|min:1',
         ]);
 
         try {
@@ -146,7 +200,7 @@ class CreditOfferController extends Controller
             if ($ofertas->isEmpty()) {
                 return response()->json([
                     'error' => 'no_offers',
-                    'message' => 'Nenhuma oferta disponível para os parâmetros informados'
+                    'message' => 'Nenhuma oferta disponível para os parâmetros informados',
                 ], 404);
             }
 
@@ -180,9 +234,9 @@ class CreditOfferController extends Controller
                         'valorMinimo' => $oferta->min_amount_cents,
                         'valorMaximo' => $oferta->max_amount_cents,
                         'parcelasMinima' => $oferta->min_installments,
-                        'parcelasMaxima' => $oferta->max_installments
+                        'parcelasMaxima' => $oferta->max_installments,
                     ],
-                    'taxaJuros' => $taxaMensal
+                    'taxaJuros' => $taxaMensal,
                 ];
             }
 
@@ -199,10 +253,10 @@ class CreditOfferController extends Controller
                 'cpf' => $cpf,
                 'parametros' => [
                     'valor_desejado' => $valorDesejadoCentavos,
-                    'quantidade_parcelas' => $quantidadeParcelas
+                    'quantidade_parcelas' => $quantidadeParcelas,
                 ],
                 'ofertas' => $melhoresOfertas,
-                'total_ofertas_encontradas' => count($simulacoes)
+                'total_ofertas_encontradas' => count($simulacoes),
             ]);
 
         } catch (InvalidArgumentException $e) {

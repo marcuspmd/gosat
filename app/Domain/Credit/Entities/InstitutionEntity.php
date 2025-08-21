@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Credit\Entities;
 
-use DateTimeImmutable;
-use InvalidArgumentException;
 use App\Infrastructure\Persistence\Eloquent\Models\InstitutionModel;
+use DateTimeImmutable;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 final class InstitutionEntity
 {
@@ -79,14 +79,14 @@ final class InstitutionEntity
 
     public function toModel(): InstitutionModel
     {
-        $model = new InstitutionModel();
+        $model = new InstitutionModel;
         $model->id = $this->id;
         $model->name = $this->name;
         $model->slug = $this->slug;
         $model->is_active = $this->isActive;
         $model->created_at = $this->createdAt;
         $model->updated_at = $this->updatedAt;
-        
+
         return $model;
     }
 

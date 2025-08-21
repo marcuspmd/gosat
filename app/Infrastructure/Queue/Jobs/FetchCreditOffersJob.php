@@ -22,7 +22,6 @@ class FetchCreditOffersJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-
     public function __construct(
         private CPF $cpf,
         private string $creditRequestId

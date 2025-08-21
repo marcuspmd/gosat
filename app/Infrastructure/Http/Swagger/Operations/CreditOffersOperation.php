@@ -41,6 +41,4 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class CreditOffersOperation
-{
-}
+class CreditOffersOperation {}

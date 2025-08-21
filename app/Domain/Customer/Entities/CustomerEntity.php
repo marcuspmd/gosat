@@ -17,8 +17,8 @@ final class CustomerEntity
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
-        $this->createdAt ??= new DateTimeImmutable();
-        $this->updatedAt ??= new DateTimeImmutable();
+        $this->createdAt ??= new DateTimeImmutable;
+        $this->updatedAt ??= new DateTimeImmutable;
     }
 
     public static function fromModel(CustomerModel $model): self
@@ -34,13 +34,13 @@ final class CustomerEntity
 
     public function toModel(): CustomerModel
     {
-        $model = new CustomerModel();
+        $model = new CustomerModel;
         $model->id = $this->id;
         $model->cpf = $this->cpf->value;
         $model->is_active = $this->isActive;
         $model->created_at = $this->createdAt;
         $model->updated_at = $this->updatedAt;
-        
+
         return $model;
     }
 

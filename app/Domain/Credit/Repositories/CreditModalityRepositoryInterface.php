@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Domain\Credit\Repositories;
 
 use App\Domain\Credit\Entities\CreditModalityEntity;
-use App\Domain\Credit\Entities\StandardModalityEntity;
 
 interface CreditModalityRepositoryInterface
 {

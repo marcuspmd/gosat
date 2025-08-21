@@ -36,8 +36,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/', [CreditOfferController::class, 'creditRequest'])
             ->name('creditRequest');
 
+        Route::post('/search', [CreditOfferController::class, 'creditRequest'])
+            ->name('creditSearch');
+
         Route::get('/customers-with-offers', [CreditOfferController::class, 'getAllCustomersWithOffers'])
             ->name('customersWithOffers');
+
+        Route::get('/offers', [CreditOfferController::class, 'getCreditOffers'])
+            ->name('getOffers');
 
         Route::post('/simulate', [CreditOfferController::class, 'simulateCredit'])
             ->name('simulateCredit');

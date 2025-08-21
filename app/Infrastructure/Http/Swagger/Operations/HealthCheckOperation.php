@@ -20,6 +20,4 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class HealthCheckOperation
-{
-}
+class HealthCheckOperation {}

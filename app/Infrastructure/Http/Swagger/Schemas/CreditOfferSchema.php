@@ -93,6 +93,4 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class CreditOfferSchema
-{
-}
+class CreditOfferSchema {}

@@ -18,6 +18,4 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'timestamp', type: 'string', format: 'date-time'),
     ]
 )]
-class HealthSchema
-{
-}
+class HealthSchema {}

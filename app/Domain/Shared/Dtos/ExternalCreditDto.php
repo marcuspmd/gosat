@@ -15,8 +15,7 @@ class ExternalCreditDto
          * @var ExternalCreditInstitutionDto[]
          */
         public array $institutions = []
-    ) {
-    }
+    ) {}
 }
 
 final class ExternalCreditInstitutionDto
@@ -29,8 +28,7 @@ final class ExternalCreditInstitutionDto
          * @var ExternalCreditModalityDto[]
          */
         public array $modalities = []
-    ) {
-    }
+    ) {}
 }
 
 final class ExternalCreditModalityDto
@@ -40,8 +38,7 @@ final class ExternalCreditModalityDto
         public string $name,
         public string $slug,
         public ExternalCreditOfferDto $offer,
-    ) {
-    }
+    ) {}
 }
 
 final class ExternalCreditOfferDto
@@ -52,6 +49,5 @@ final class ExternalCreditOfferDto
         public float $interestRate = 0,
         public int $minAmountInCents = 0,
         public int $maxAmountInCents = 0,
-    ) {
-    }
+    ) {}
 }

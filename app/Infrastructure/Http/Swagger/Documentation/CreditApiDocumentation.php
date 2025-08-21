@@ -35,6 +35,4 @@ use OpenApi\Attributes as OA;
     name: 'System',
     description: 'Operações de sistema e monitoramento'
 )]
-class CreditApiDocumentation
-{
-}
+class CreditApiDocumentation {}

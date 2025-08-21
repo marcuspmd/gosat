@@ -56,5 +56,4 @@ class CreditOfferModel extends Model
     {
         return $query->where('customer_id', $customerId);
     }
-
 }

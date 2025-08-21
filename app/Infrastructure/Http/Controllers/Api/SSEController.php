@@ -6,7 +6,6 @@ namespace App\Infrastructure\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -54,10 +53,10 @@ final class SSEController extends Controller
 
         $lastHeartbeat = time();
 
-        while (connection_status() === CONNECTION_NORMAL && !connection_aborted()) {
+        while (connection_status() === CONNECTION_NORMAL && ! connection_aborted()) {
             // Check for new events
             $events = $this->getEventsAfter($lastEventId, $clientId);
-            
+
             foreach ($events as $event) {
                 $this->sendSSEEvent($event['type'], $event['data'], $event['id']);
                 $lastEventId = $event['id'];
@@ -87,10 +86,10 @@ final class SSEController extends Controller
         if ($id) {
             echo "id: {$id}\n";
         }
-        
+
         echo "event: {$event}\n";
-        echo "data: " . json_encode($data) . "\n";
-        echo "retry: " . self::MAX_RETRY_TIME . "\n";
+        echo 'data: ' . json_encode($data) . "\n";
+        echo 'retry: ' . self::MAX_RETRY_TIME . "\n";
         echo "\n";
 
         if (ob_get_level()) {
@@ -110,45 +109,46 @@ final class SSEController extends Controller
     {
         // Get events from cache that are newer than lastEventId
         $allEvents = Cache::get(self::CACHE_PREFIX . 'events', []);
-        
+
         // Filter events that come after the last received event ID
         $newEvents = array_filter($allEvents, function ($event) use ($lastEventId) {
             return $event['id'] > $lastEventId;
         });
-        
+
         // Get client seen events
         $seenEvents = Cache::get(self::CACHE_PREFIX . 'seen:' . $clientId, []);
-        
+
         // Filter out events that this client has already seen
         $unseenEvents = array_filter($newEvents, function ($event) use ($seenEvents) {
-            return !in_array($event['id'], $seenEvents);
+            return ! in_array($event['id'], $seenEvents);
         });
-        
+
         // Only return events that are less than 10 minutes old to prevent very old spam
         $tenMinutesAgo = now()->subMinutes(10)->timestamp;
+
         return array_filter($unseenEvents, function ($event) use ($tenMinutesAgo) {
             return $event['created_at'] > $tenMinutesAgo;
         });
     }
-    
+
     private function markExistingEventsAsSeen(string $clientId): void
     {
         $allEvents = Cache::get(self::CACHE_PREFIX . 'events', []);
         $eventIds = array_column($allEvents, 'id');
-        
+
         // Store seen events for this client for 1 hour
         Cache::put(self::CACHE_PREFIX . 'seen:' . $clientId, $eventIds, 3600);
-        
+
         Log::info('Marked existing events as seen for client', [
             'client_id' => $clientId,
-            'event_count' => count($eventIds)
+            'event_count' => count($eventIds),
         ]);
     }
 
     public static function broadcastEvent(string $type, array $data): void
     {
         $eventId = (string) (microtime(true) * 10000);
-        
+
         $event = [
             'id' => $eventId,
             'type' => $type,
@@ -160,13 +160,13 @@ final class SSEController extends Controller
 
         // Store event in cache for SSE clients
         $events = Cache::get(self::CACHE_PREFIX . 'events', []);
-        
+
         // Remove events older than 1 hour before adding new one
         $oneHourAgo = now()->subHour()->timestamp;
         $events = array_filter($events, function ($existingEvent) use ($oneHourAgo) {
             return $existingEvent['created_at'] > $oneHourAgo;
         });
-        
+
         $events[] = $event;
 
         // Keep only last 50 events to prevent memory issues
@@ -200,7 +200,7 @@ final class SSEController extends Controller
     public function clearEvents(): JsonResponse
     {
         Cache::forget(self::CACHE_PREFIX . 'events');
-        
+
         return response()->json([
             'message' => 'Events cache cleared successfully',
         ]);

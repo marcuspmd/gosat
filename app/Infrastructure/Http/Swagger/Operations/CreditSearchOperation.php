@@ -34,6 +34,4 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class CreditSearchOperation
-{
-}
+class CreditSearchOperation {}

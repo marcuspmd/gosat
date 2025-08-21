@@ -36,6 +36,4 @@ use OpenApi\Attributes as OA;
         new OA\Property(property: 'message', type: 'string', example: 'Recurso não encontrado'),
     ]
 )]
-class ErrorSchema
-{
-}
+class ErrorSchema {}

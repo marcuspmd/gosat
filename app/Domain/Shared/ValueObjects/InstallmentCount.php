@@ -68,4 +68,19 @@ final class InstallmentCount
     {
         return $this->value < $other->value;
     }
+
+    public function isShortTerm(): bool
+    {
+        return $this->value <= 12;
+    }
+
+    public function isMediumTerm(): bool
+    {
+        return $this->value > 12 && $this->value <= 36;
+    }
+
+    public function isLongTerm(): bool
+    {
+        return $this->value > 36;
+    }
 }

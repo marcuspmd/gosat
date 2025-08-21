@@ -10,7 +10,6 @@ use App\Domain\Shared\ValueObjects\InterestRate;
 use App\Domain\Shared\ValueObjects\Money;
 use App\Infrastructure\Persistence\Eloquent\Models\CreditOfferModel;
 use DateTimeImmutable;
-use InvalidArgumentException;
 
 final class CreditOfferEntity
 {
@@ -28,8 +27,8 @@ final class CreditOfferEntity
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
-        $this->createdAt ??= new DateTimeImmutable();
-        $this->updatedAt ??= new DateTimeImmutable();
+        $this->createdAt ??= new DateTimeImmutable;
+        $this->updatedAt ??= new DateTimeImmutable;
 
     }
 
@@ -78,7 +77,7 @@ final class CreditOfferEntity
 
     public function toModel(): CreditOfferModel
     {
-        $model = new CreditOfferModel();
+        $model = new CreditOfferModel;
         $model->id = $this->id;
         $model->customer_id = $this->customer->id;
         $model->institution_id = $this->institution->id;

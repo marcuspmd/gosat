@@ -29,6 +29,4 @@ use OpenApi\Attributes as OA;
         ),
     ]
 )]
-class CreditSimulateOperation
-{
-}
+class CreditSimulateOperation {}
