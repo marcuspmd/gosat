@@ -15,9 +15,6 @@ class CustomerModel extends Model
 
     protected $fillable = [
         'cpf',
-        'name',
-        'email',
-        'phone',
         'is_active',
     ];
 
@@ -37,8 +34,4 @@ class CustomerModel extends Model
         return $query->where('cpf', $cpf);
     }
 
-    public function scopeByEmail($query, string $email)
-    {
-        return $query->where('email', $email);
-    }
 }

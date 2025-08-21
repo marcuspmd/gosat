@@ -75,7 +75,7 @@ migrate:
 
 
 migrate-fresh:
-	$(DOCKER_EXEC) php artisan migrate:fresh --seed --force
+	$(DOCKER_EXEC) php artisan migrate:fresh --seed
 
 
 migrate-rollbacks:

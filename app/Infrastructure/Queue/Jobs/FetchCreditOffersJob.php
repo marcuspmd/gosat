@@ -6,6 +6,7 @@ namespace App\Infrastructure\Queue\Jobs;
 
 use App\Domain\Integration\UseCases\FetchExternalCreditDataUseCase;
 use App\Domain\Shared\ValueObjects\CPF;
+use App\Infrastructure\Http\Controllers\Api\SSEController;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -21,13 +22,10 @@ class FetchCreditOffersJob implements ShouldQueue
     use Queueable;
     use SerializesModels;
 
-    public int $tries = 3;
-    public array $backoff = [30, 60, 120];
-    public int $timeout = 120;
 
     public function __construct(
-        private string $cpf,
-        private string $requestId
+        private CPF $cpf,
+        private string $creditRequestId
     ) {
         $this->onQueue('credit_offers');
     }
@@ -36,82 +34,60 @@ class FetchCreditOffersJob implements ShouldQueue
     {
         try {
             Log::info('Iniciando busca de ofertas de crédito', [
-                'cpf' => $this->maskCpf($this->cpf),
-                'request_id' => $this->requestId,
+                'cpf' => $this->cpf->masked(),
                 'attempt' => $this->attempts(),
             ]);
 
-            $cpf = new CPF($this->cpf);
-            $offers = $useCase->execute($cpf, $this->requestId);
+            // Broadcast job started event
+            SSEController::broadcastEvent('job.started', [
+                'cpf' => $this->cpf->masked(),
+                'message' => 'Iniciando busca de ofertas de crédito...',
+            ]);
+
+            $offers = $useCase->execute($this->cpf, $this->creditRequestId);
 
             Log::info('Ofertas de crédito processadas com sucesso', [
-                'cpf' => $this->maskCpf($this->cpf),
-                'request_id' => $this->requestId,
+                'cpf' => $this->cpf->masked(),
                 'offers_count' => count($offers),
                 'attempt' => $this->attempts(),
             ]);
 
-            // Despachar jobs individuais para cada oferta se necessário
-            foreach ($offers as $offer) {
-                if ($offer->status->canRetry()) {
-                    SimulateCreditOfferJob::dispatch(
-                        $this->cpf,
-                        $offer->institution->id,
-                        $offer->modality->standardCode->value,
-                        $this->requestId
-                    );
-                }
-            }
+            // Broadcast job completed event
+            SSEController::broadcastEvent('job.completed', [
+                'cpf' => $this->cpf->masked(),
+                'ofertas_count' => count($offers),
+                'ofertas' => $offers,
+                'message' => count($offers) > 0
+                    ? 'Consulta finalizada com sucesso!'
+                    : 'Nenhuma oferta encontrada para este CPF.',
+            ]);
 
         } catch (\Exception $e) {
             Log::warning('Erro ao buscar ofertas de crédito', [
-                'cpf' => $this->maskCpf($this->cpf),
-                'request_id' => $this->requestId,
+                'cpf' => $this->cpf->masked(),
                 'error' => $e->getMessage(),
                 'attempt' => $this->attempts(),
-                'max_attempts' => $this->tries,
             ]);
 
-            // Se ainda há tentativas, relançar para retry
-            if ($this->attempts() < $this->tries) {
-                $delay = $this->backoff[$this->attempts() - 1] ?? 120;
-                $this->release($delay);
-
-                return;
-            }
-
-            // Última tentativa falhou
-            $this->fail($e);
+            throw $e;
         }
     }
 
     public function failed(Throwable $exception): void
     {
         Log::error('Falha definitiva na busca de ofertas de crédito', [
-            'cpf' => $this->maskCpf($this->cpf),
-            'request_id' => $this->requestId,
+            'cpf' => $this->cpf->masked(),
             'error' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
             'attempts' => $this->attempts(),
             'failed_at' => now()->toISOString(),
         ]);
 
-        // TODO: Notificar sistema de monitoramento
-        // TODO: Marcar request como falho no banco de dados
-    }
-
-    public function retryUntil(): \DateTime
-    {
-        // Jobs expiram após 1 hora
-        return now()->addHour();
-    }
-
-    private function maskCpf(string $cpf): string
-    {
-        if (strlen($cpf) !== 11) {
-            return '***';
-        }
-
-        return substr($cpf, 0, 3) . '.***.***-' . substr($cpf, -2);
+        // Broadcast final failure event
+        SSEController::broadcastEvent('job.failed', [
+            'cpf' => $this->cpf->masked(),
+            'error' => $exception->getMessage(),
+            'message' => 'Erro ao buscar ofertas de crédito. Tente novamente.',
+        ]);
     }
 }

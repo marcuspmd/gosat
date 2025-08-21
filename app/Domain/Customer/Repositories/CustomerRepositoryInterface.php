@@ -14,6 +14,4 @@ interface CustomerRepositoryInterface
     public function findByCpf(CPF $cpf): ?CustomerEntity;
 
     public function save(CustomerEntity $customer): void;
-
-    public function exists(CPF $cpf): bool;
 }

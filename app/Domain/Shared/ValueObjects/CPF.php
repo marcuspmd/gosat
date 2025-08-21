@@ -33,6 +33,11 @@ final class CPF
         $this->value = $cpf;
     }
 
+    public function masked(): string
+    {
+        return substr($this->value, 0, 3) . '.***.***-' . substr($this->value, -2);
+    }
+
     private function validateCPF(string $cpf): bool
     {
         $testCpfs = ['11111111111', '12312312312', '22222222222'];

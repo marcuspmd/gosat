@@ -15,17 +15,14 @@ class CreditOfferModel extends Model
     protected $table = 'credit_offers';
 
     protected $fillable = [
-        'request_id',
-        'cpf',
+        'customer_id',
         'institution_id',
         'modality_id',
         'min_amount_cents',
         'max_amount_cents',
-        'approved_amount_cents',
         'monthly_interest_rate',
         'min_installments',
         'max_installments',
-        'installments',
         'status',
         'error_message',
     ];
@@ -33,11 +30,9 @@ class CreditOfferModel extends Model
     protected $casts = [
         'min_amount_cents' => 'integer',
         'max_amount_cents' => 'integer',
-        'approved_amount_cents' => 'integer',
         'monthly_interest_rate' => 'decimal:6',
         'min_installments' => 'integer',
         'max_installments' => 'integer',
-        'installments' => 'integer',
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',
     ];
@@ -52,14 +47,14 @@ class CreditOfferModel extends Model
         return $this->belongsTo(CreditModalityModel::class, 'modality_id');
     }
 
-    public function scopeByRequestId($query, string $requestId)
+    public function customer(): BelongsTo
     {
-        return $query->where('request_id', $requestId);
+        return $this->belongsTo(CustomerModel::class, 'customer_id');
     }
 
-    public function scopeByCpf($query, string $cpf)
+    public function scopeByCustomer($query, string $customerId)
     {
-        return $query->where('cpf', $cpf);
+        return $query->where('customer_id', $customerId);
     }
 
     public function scopeByStatus($query, string $status)

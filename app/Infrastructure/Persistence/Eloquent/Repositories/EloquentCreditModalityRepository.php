@@ -5,42 +5,40 @@ declare(strict_types=1);
 namespace App\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Domain\Credit\Entities\CreditModalityEntity;
-use App\Domain\Credit\Entities\StandardModality;
 use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
+use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
 
 final class EloquentCreditModalityRepository implements CreditModalityRepositoryInterface
 {
     public function findById(string $id): ?CreditModalityEntity
     {
-        // TODO: Implementar quando tiver a tabela credit_modalities
-        return null;
+        $model = CreditModalityModel::find($id);
+
+        return $model ? CreditModalityEntity::fromModel($model) : null;
     }
 
-    public function findByStandardModality(StandardModality $standardModality): ?CreditModalityEntity
+    public function findBySlug(string $slug): ?CreditModalityEntity
     {
-        // TODO: Implementar quando tiver a tabela credit_modalities
-        return null;
-    }
+        $model = CreditModalityModel::byStandardCode($slug)->first();
 
-    public function findActive(): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_modalities
-        return [];
-    }
-
-    public function findAll(): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_modalities
-        return [];
+        return $model ? CreditModalityEntity::fromModel($model) : null;
     }
 
     public function save(CreditModalityEntity $modality): void
     {
-        // TODO: Implementar quando tiver a tabela credit_modalities
+        $model = CreditModalityModel::find($modality->id);
+
+        if ($model) {
+            $modality->updateModel($model);
+            $model->save();
+        } else {
+            $model = $modality->toModel();
+            $model->save();
+        }
     }
 
     public function delete(string $id): void
     {
-        // TODO: Implementar quando tiver a tabela credit_modalities
+        CreditModalityModel::destroy($id);
     }
 }

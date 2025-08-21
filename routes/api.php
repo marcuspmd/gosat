@@ -33,21 +33,14 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('credit')->name('api.credit.')->group(function () {
 
-        // Iniciar nova consulta de crédito
-        Route::post('/search', [CreditOfferController::class, 'search'])
-            ->name('search');
+        Route::post('/', [CreditOfferController::class, 'creditRequest'])
+            ->name('creditRequest');
 
-        // Verificar status de uma consulta
-        Route::get('/status/{requestId}', [CreditOfferController::class, 'status'])
-            ->name('status')
-            ->where('requestId', '[a-f0-9-]{36}'); // UUID format
+        Route::get('/customers-with-offers', [CreditOfferController::class, 'getAllCustomersWithOffers'])
+            ->name('customersWithOffers');
 
-        // Simular oferta de crédito
-        Route::post('/simulate', [CreditOfferController::class, 'simulate'])
-            ->name('simulate');
+        Route::post('/simulate', [CreditOfferController::class, 'simulateCredit'])
+            ->name('simulateCredit');
 
-        // Listar ofertas para um CPF
-        Route::get('/offers', [CreditOfferController::class, 'offers'])
-            ->name('offers');
     });
 });

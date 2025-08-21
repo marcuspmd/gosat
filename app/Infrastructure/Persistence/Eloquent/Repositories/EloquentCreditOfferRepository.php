@@ -6,70 +6,87 @@ namespace App\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Domain\Credit\Entities\CreditOfferEntity;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
-use App\Domain\Credit\ValueObjects\CreditOfferStatus;
 use App\Domain\Shared\ValueObjects\CPF;
+use App\Infrastructure\Persistence\Eloquent\Models\CreditOfferModel;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterface
 {
-    public function findById(string $id): ?CreditOfferEntity
+    /**
+     * @return CreditOfferEntity[]|null
+     */
+    public function findById(string $id): ?array
     {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return null;
+        $model = CreditOfferModel::with(['customer', 'institution', 'modality'])->find($id);
+
+        return $model ? [CreditOfferEntity::fromModel($model)] : null;
     }
 
-    public function findByRequestId(string $requestId): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return [];
-    }
-
+    /**
+     * @return CreditOfferEntity[]
+     */
     public function findByCpf(CPF $cpf): array
     {
-        // Por enquanto, retornar array vazio até implementar a tabela
-        return [];
-    }
+        $models = CreditOfferModel::with(['customer', 'institution', 'modality'])
+            ->whereHas('customer', function($query) use ($cpf) {
+                $query->where('cpf', $cpf->value);
+            })
+            ->get();
 
-    public function findByStatus(CreditOfferStatus $status): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return [];
-    }
-
-    public function findByCpfAndRequestId(CPF $cpf, string $requestId): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return [];
-    }
-
-    public function findPendingOffers(): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return [];
-    }
-
-    public function findCompletedOffers(CPF $cpf): array
-    {
-        // TODO: Implementar quando tiver a tabela credit_offers
-        return [];
+        return $models->map(fn ($model) => CreditOfferEntity::fromModel($model))->toArray();
     }
 
     public function save(CreditOfferEntity $offer): void
     {
-        // TODO: Implementar quando tiver a tabela credit_offers
+        DB::transaction(function () use ($offer) {
+            $model = CreditOfferModel::find($offer->id);
+
+            if ($model) {
+                $offer->updateModel($model);
+                $model->save();
+            } else {
+                $model = $offer->toModel();
+                $model->save();
+            }
+        });
     }
 
+    /**
+     *
+     * @param CreditOfferEntity[] $offers
+     * @return void
+     */
     public function saveAll(array $offers): void
     {
-        // TODO: Implementar quando tiver a tabela credit_offers
+        DB::transaction(function () use ($offers) {
+            foreach ($offers as $offer) {
+                if ($offer instanceof CreditOfferEntity) {
+                    $this->save($offer);
+                }
+            }
+        });
     }
 
     public function delete(string $id): void
     {
-        // TODO: Implementar quando tiver a tabela credit_offers
+        CreditOfferModel::destroy($id);
     }
 
-    public function markRequestAsFailed(string $requestId, string $errorMessage): void
+    public function markRequestAsFailed(string $errorMessage): void
     {
-        // TODO: Implementar quando tiver a tabela credit_offers
+        Log::error('Request marcado como falho', [
+            'error' => $errorMessage,
+        ]);
+    }
+
+    /**
+     * @param CreditOfferEntity[] $offers
+     */
+    public function markRequestAsCompleted(array $offers): void
+    {
+        Log::info('Request concluído com sucesso', [
+            'offers_count' => count($offers),
+        ]);
     }
 }

@@ -4,65 +4,67 @@ declare(strict_types=1);
 
 namespace App\Domain\Integration\UseCases;
 
+use App\Domain\Credit\Entities\CreditOfferEntity;
+use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
+use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
+use App\Domain\Credit\Repositories\StandardModalityRepositoryInterface;
 use App\Domain\Integration\Services\ExternalCreditApiService;
+use App\Domain\Integration\Mappers\ExternalCreditMapper;
+use App\Domain\Shared\Dtos\ExternalCreditDto;
 use App\Domain\Shared\ValueObjects\CPF;
-use InvalidArgumentException;
+use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
 
 final readonly class FetchExternalCreditDataUseCase
 {
     public function __construct(
         private ExternalCreditApiService $apiService,
-        private CreditOfferRepositoryInterface $creditOfferRepository
-    ) {}
+        private CreditOfferRepositoryInterface $creditOfferRepository,
+        private CreditModalityRepositoryInterface $creditModalityRepository,
+        private InstitutionRepositoryInterface $institutionRepository,
+        private ExternalCreditMapper $mapper
+    ) {
+    }
 
-    public function execute(CPF $cpf, string $requestId): array
-    {
-        if (empty(trim($requestId))) {
-            throw new InvalidArgumentException('Request ID é obrigatório');
-        }
-
+    /**
+     * @param CPF $cpf
+     * @param string $creditRequestId
+     * @return CreditOfferEntity[]
+     */
+    public function execute(
+        CPF $cpf,
+        string $creditRequestId
+    ): array {
         try {
-            // Buscar dados da API externa
-            $externalCredits = $this->apiService->fetchCredit($cpf);
+            $creditRequest = new ExternalCreditDto(
+                cpf: $cpf,
+                creditRequestId: $creditRequestId,
+            );
 
-            if (empty($externalCredits)) {
+            $externalCredits = $this->apiService->fetchCredit($creditRequest);
+
+            if (empty($externalCredits->institutions)) {
                 return [];
             }
 
-            $creditOffers = [];
+            $creditOffers = $this->mapper->mapToCreditOffers($externalCredits);
 
-            foreach ($externalCredits as $credit) {
-                try {
-                    // TODO: Implementar ModalityNormalizationService
-                    // Por enquanto, criar ofertas simples
-                    // $creditOffer = $this->createBasicOffer($cpf, $requestId, $credit);
-
-                    // if ($creditOffer !== null) {
-                    //     $creditOffers[] = $creditOffer;
-                    // }
-
-                } catch (\Exception $e) {
-                    // Log individual offer normalization failures but continue processing others
-                    continue;
-                }
-            }
-
-            // Salvar todas as ofertas normalizadas
-            if (! empty($creditOffers)) {
+            if (!empty($creditOffers)) {
                 $this->creditOfferRepository->saveAll($creditOffers);
             }
+
+            $this->creditOfferRepository->markRequestAsCompleted([]);
 
             return $creditOffers;
 
         } catch (\Exception $e) {
-            // Marcar request como falho em caso de erro geral
             $this->creditOfferRepository->markRequestAsFailed(
-                $requestId,
+                $creditRequestId,
                 $e->getMessage()
             );
 
             throw $e;
         }
     }
+
 }

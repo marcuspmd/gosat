@@ -11,11 +11,7 @@ interface CreditModalityRepositoryInterface
 {
     public function findById(string $id): ?CreditModalityEntity;
 
-    public function findByStandardModality(StandardModalityEntity $standardModality): ?CreditModalityEntity;
-
-    public function findActive(): array;
-
-    public function findAll(): array;
+    public function findBySlug(string $slug): ?CreditModalityEntity;
 
     public function save(CreditModalityEntity $modality): void;
 

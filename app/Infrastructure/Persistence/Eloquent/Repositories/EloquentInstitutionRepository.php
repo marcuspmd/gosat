@@ -6,40 +6,39 @@ namespace App\Infrastructure\Persistence\Eloquent\Repositories;
 
 use App\Domain\Credit\Entities\InstitutionEntity;
 use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
+use App\Infrastructure\Persistence\Eloquent\Models\InstitutionModel;
 
 final class EloquentInstitutionRepository implements InstitutionRepositoryInterface
 {
     public function findById(string $id): ?InstitutionEntity
     {
-        // TODO: Implementar quando tiver a tabela institutions
-        return null;
+        $model = InstitutionModel::find($id);
+        
+        return $model ? InstitutionEntity::fromModel($model) : null;
     }
 
     public function findBySlug(string $slug): ?InstitutionEntity
     {
-        // TODO: Implementar quando tiver a tabela institutions
-        return null;
-    }
-
-    public function findActive(): array
-    {
-        // TODO: Implementar quando tiver a tabela institutions
-        return [];
-    }
-
-    public function findAll(): array
-    {
-        // TODO: Implementar quando tiver a tabela institutions
-        return [];
+        $model = InstitutionModel::where('slug', $slug)->first();
+        
+        return $model ? InstitutionEntity::fromModel($model) : null;
     }
 
     public function save(InstitutionEntity $institution): void
     {
-        // TODO: Implementar quando tiver a tabela institutions
+        $model = InstitutionModel::find($institution->id);
+        
+        if ($model) {
+            $institution->updateModel($model);
+            $model->save();
+        } else {
+            $model = $institution->toModel();
+            $model->save();
+        }
     }
 
     public function delete(string $id): void
     {
-        // TODO: Implementar quando tiver a tabela institutions
+        InstitutionModel::destroy($id);
     }
 }

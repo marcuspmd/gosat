@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Credit\Entities;
 
-use App\Domain\Credit\ValueObjects\StandardModalityCode;
 use DateTimeImmutable;
 use InvalidArgumentException;
+use Illuminate\Support\Str;
+use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
 
 final class CreditModalityEntity
 {
@@ -19,41 +20,60 @@ final class CreditModalityEntity
         }
     }
 
-    public bool $isActive {
+    public string $standardCode {
         set {
-            $this->isActive = $value;
+            if (empty(trim($value))) {
+                throw new InvalidArgumentException('Código da modalidade não pode estar vazio');
+            }
+            $this->standardCode = Str::slug(trim($value));
         }
-        get => $this->isActive;
     }
 
     public function __construct(
         public string $id,
-        public StandardModalityCode $standardCode,
+        string $standardCode,
         string $name,
-        public ?string $description = null,
-        bool $isActive = true,
+        public bool $isActive = true,
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
         $this->name = $name;
-        $this->isActive = $isActive;
+        $this->standardCode = $standardCode;
         $this->createdAt ??= new DateTimeImmutable;
         $this->updatedAt ??= new DateTimeImmutable;
     }
 
-    public function copyWith(
-        ?string $description = null,
-        ?bool $isActive = null
-    ): self {
+    public static function fromModel(CreditModalityModel $model): self
+    {
         return new self(
-            $this->id,
-            $this->standardCode,
-            $this->name,
-            $description ?? $this->description,
-            $isActive ?? $this->isActive,
-            $this->createdAt,
-            new DateTimeImmutable
+            id: $model->id,
+            standardCode: $model->standard_code,
+            name: $model->name,
+            isActive: $model->is_active,
+            createdAt: $model->created_at,
+            updatedAt: $model->updated_at
         );
+    }
+
+    public function toModel(): CreditModalityModel
+    {
+        $model = new CreditModalityModel();
+        $model->id = $this->id;
+        $model->standard_code = $this->standardCode;
+        $model->name = $this->name;
+        $model->is_active = $this->isActive;
+        $model->created_at = $this->createdAt;
+        $model->updated_at = $this->updatedAt;
+
+        return $model;
+    }
+
+    public function updateModel(CreditModalityModel $model): void
+    {
+        $model->standard_code = $this->standardCode;
+        $model->name = $this->name;
+        $model->is_active = $this->isActive;
+        $model->updated_at = $this->updatedAt;
     }
 
     public function equals(CreditModalityEntity $other): bool

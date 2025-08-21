@@ -9,18 +9,9 @@ use App\Domain\Shared\ValueObjects\CPF;
 
 interface CreditOfferRepositoryInterface
 {
-    public function findById(string $id): ?CreditOfferEntity;
-
-    /**
-     * @return CreditOfferEntity[]
-     */
-    public function findByRequestId(string $requestId): array;
+    public function findById(string $id): ?array;
 
     public function findByCpf(CPF $cpf): array;
-
-    public function findByCpfAndRequestId(CPF $cpf, string $requestId): array;
-
-    public function findCompletedOffers(CPF $cpf): array;
 
     public function save(CreditOfferEntity $offer): void;
 
@@ -28,5 +19,7 @@ interface CreditOfferRepositoryInterface
 
     public function delete(string $id): void;
 
-    public function markRequestAsFailed(string $requestId, string $errorMessage): void;
+    public function markRequestAsFailed(string $errorMessage): void;
+
+    public function markRequestAsCompleted(array $offers): void;
 }

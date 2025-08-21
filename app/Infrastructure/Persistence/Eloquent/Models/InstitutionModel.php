@@ -17,8 +17,6 @@ class InstitutionModel extends Model
     protected $fillable = [
         'name',
         'slug',
-        'website',
-        'logo_url',
         'is_active',
     ];
 
@@ -27,11 +25,6 @@ class InstitutionModel extends Model
         'created_at' => 'immutable_datetime',
         'updated_at' => 'immutable_datetime',
     ];
-
-    public function modalityMappings(): HasMany
-    {
-        return $this->hasMany(ModalityMappingModel::class, 'institution_id');
-    }
 
     public function creditOffers(): HasMany
     {

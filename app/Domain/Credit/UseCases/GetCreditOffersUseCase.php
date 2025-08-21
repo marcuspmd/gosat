@@ -55,6 +55,90 @@ final readonly class GetCreditOffersUseCase
         return array_slice($rankedOffers, 0, $limit);
     }
 
+    public function getStoredOffersByCpf(CPF $cpf, array $filters = []): array
+    {
+        $offers = $this->creditOfferRepository->findByCpf($cpf);
+
+        if (empty($offers)) {
+            return [];
+        }
+
+        // Aplicar filtros se fornecidos
+        $filteredOffers = $this->applyFilters($offers, $filters);
+
+        // Aplicar ordenação baseada nos filtros
+        return $this->applySorting($filteredOffers, $filters);
+    }
+
+    private function applyFilters(array $offers, array $filters): array
+    {
+        if (empty($filters)) {
+            return $offers;
+        }
+
+        return array_filter($offers, function ($offer) use ($filters) {
+            // Filtro por valor mínimo
+            if (isset($filters['min_amount']) && $offer['min_amount_cents'] < ($filters['min_amount'] * 100)) {
+                return false;
+            }
+
+            // Filtro por valor máximo
+            if (isset($filters['max_amount']) && $offer['max_amount_cents'] > ($filters['max_amount'] * 100)) {
+                return false;
+            }
+
+            // Filtro por taxa mínima
+            if (isset($filters['min_rate']) && $offer['monthly_interest_rate'] < $filters['min_rate']) {
+                return false;
+            }
+
+            // Filtro por taxa máxima
+            if (isset($filters['max_rate']) && $offer['monthly_interest_rate'] > $filters['max_rate']) {
+                return false;
+            }
+
+            // Filtro por instituição
+            if (isset($filters['institution']) && $offer['institution_name'] !== $filters['institution']) {
+                return false;
+            }
+
+            // Filtro por modalidade
+            if (isset($filters['modality']) && $offer['modality_name'] !== $filters['modality']) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    private function applySorting(array $offers, array $filters): array
+    {
+        $sortBy = $filters['sort_by'] ?? 'monthly_interest_rate';
+        $sortOrder = $filters['sort_order'] ?? 'asc';
+
+        usort($offers, function ($a, $b) use ($sortBy, $sortOrder) {
+            $valueA = $a[$sortBy] ?? 0;
+            $valueB = $b[$sortBy] ?? 0;
+
+            if ($sortOrder === 'desc') {
+                return $valueB <=> $valueA;
+            }
+
+            return $valueA <=> $valueB;
+        });
+
+        return $offers;
+    }
+
+    public function getOfferById(string $offerId): ?array
+    {
+        if (empty(trim($offerId))) {
+            throw new InvalidArgumentException('ID da oferta é obrigatório');
+        }
+
+        return $this->creditOfferRepository->findById($offerId);
+    }
+
     public function getOfferStatus(string $requestId): ?CreditOfferStatus
     {
         if (empty(trim($requestId))) {
