@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Http\Controllers\Api;
 
+use App\Application\DTOs\CreditSimulationResponseDTO;
 use App\Application\Services\CreditOfferApplicationService;
+use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
+use App\Domain\Credit\Services\CreditCalculatorService;
+use App\Domain\Shared\ValueObjects\CPF;
+use App\Domain\Shared\ValueObjects\InstallmentCount;
+use App\Domain\Shared\ValueObjects\InterestRate;
+use App\Domain\Shared\ValueObjects\Money;
+use App\Infrastructure\Http\Resources\CreditSimulationResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
 class CreditOfferController extends Controller
 {
     public function __construct(
-        private readonly CreditOfferApplicationService $applicationService
+        private readonly CreditOfferApplicationService $applicationService,
+        private readonly CreditOfferRepositoryInterface $creditOfferRepository,
+        private readonly CreditCalculatorService $creditCalculatorService
     ) {}
 
     public function creditRequest(Request $request): JsonResponse
@@ -49,52 +58,11 @@ class CreditOfferController extends Controller
     public function getAllCustomersWithOffers(): JsonResponse
     {
         try {
-            // Buscar ofertas agrupadas por CPF, instituição e modalidade (excludindo soft deleted)
-            $customers = DB::table('customers')
-                ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
-                ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
-                ->join('credit_modalities', 'credit_offers.modality_id', '=', 'credit_modalities.id')
-                ->select(
-                    'customers.cpf',
-                    'institutions.name as institution_name',
-                    'credit_modalities.name as modality_name',
-                    DB::raw('MAX(credit_offers.max_amount_cents) as max_amount_cents'),
-                    DB::raw('MIN(credit_offers.min_amount_cents) as min_amount_cents'),
-                    DB::raw('MAX(credit_offers.max_installments) as max_installments'),
-                    DB::raw('MIN(credit_offers.min_installments) as min_installments'),
-                    DB::raw('MIN(credit_offers.monthly_interest_rate) as monthly_interest_rate'),
-                    DB::raw('MAX(credit_offers.created_at) as created_at')
-                )
-                ->where('customers.is_active', true)
-                ->whereNull('credit_offers.deleted_at')
-                ->groupBy('customers.cpf', 'institutions.name', 'credit_modalities.name')
-                ->orderBy('customers.cpf')
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            $groupedCustomers = $customers->groupBy('cpf')->map(function ($offers, $cpf) {
-                // Calcular ranges disponíveis para este CPF
-                $minAmount = $offers->min('min_amount_cents');
-                $maxAmount = $offers->max('max_amount_cents');
-                $minInstallments = $offers->min('min_installments');
-                $maxInstallments = $offers->max('max_installments');
-
-                return [
-                    'cpf' => $cpf,
-                    'offers_count' => $offers->count(),
-                    'offers' => $offers->toArray(),
-                    'available_ranges' => [
-                        'min_amount_cents' => $minAmount,
-                        'max_amount_cents' => $maxAmount,
-                        'min_installments' => $minInstallments,
-                        'max_installments' => $maxInstallments,
-                    ],
-                ];
-            })->values();
+            $customersData = $this->creditOfferRepository->getAllCustomersWithOffers();
 
             return response()->json([
                 'status' => 'success',
-                'data' => $groupedCustomers,
+                'data' => $customersData,
             ]);
 
         } catch (\Exception) {
@@ -117,9 +85,7 @@ class CreditOfferController extends Controller
             }
 
             // Check if there are any jobs running for this request_id
-            $pendingJob = DB::table('jobs')
-                ->where('payload', 'like', '%"creditRequestId":"' . $requestId . '"%')
-                ->first();
+            $pendingJob = $this->creditOfferRepository->findPendingJobByRequestId($requestId);
 
             if ($pendingJob) {
                 return response()->json([
@@ -132,9 +98,7 @@ class CreditOfferController extends Controller
             }
 
             // Check if there are any failed jobs for this request_id
-            $failedJob = DB::table('failed_jobs')
-                ->where('payload', 'like', '%"creditRequestId":"' . $requestId . '"%')
-                ->first();
+            $failedJob = $this->creditOfferRepository->findFailedJobByRequestId($requestId);
 
             if ($failedJob) {
                 return response()->json([
@@ -147,10 +111,7 @@ class CreditOfferController extends Controller
             }
 
             // Check if we have offers that were created with this request_id
-            $offersCount = DB::table('credit_offers')
-                ->where('request_id', $requestId)
-                ->whereNull('deleted_at')
-                ->count();
+            $offersCount = $this->creditOfferRepository->countOffersByRequestId($requestId);
 
             if ($offersCount > 0) {
                 return response()->json([
@@ -170,7 +131,7 @@ class CreditOfferController extends Controller
                 'offers_found' => 0,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             return response()->json([
                 'error' => 'internal_error',
                 'message' => 'Error checking request status',
@@ -186,36 +147,15 @@ class CreditOfferController extends Controller
         ]);
 
         try {
-            $cpf = $request->query('cpf');
-            $limit = $request->query('limit', 10);
+            $cpf = new CPF($request->query('cpf'));
+            $limit = (int) $request->query('limit', 10);
 
-            // Buscar ofertas para o CPF específico
-            $query = DB::table('customers')
-                ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
-                ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
-                ->join('credit_modalities', 'credit_offers.modality_id', '=', 'credit_modalities.id')
-                ->select(
-                    'institutions.name as institution_name',
-                    'credit_modalities.name as modality_name',
-                    'credit_offers.max_amount_cents',
-                    'credit_offers.min_amount_cents',
-                    'credit_offers.max_installments',
-                    'credit_offers.min_installments',
-                    'credit_offers.monthly_interest_rate',
-                    'credit_offers.created_at'
-                )
-                ->where('customers.cpf', $cpf)
-                ->where('customers.is_active', true)
-                ->whereNull('credit_offers.deleted_at')
-                ->orderBy('credit_offers.created_at', 'desc')
-                ->limit($limit);
-
-            $offers = $query->get();
+            $offers = $this->creditOfferRepository->getOffersForCpf($cpf, $limit);
 
             return response()->json([
-                'cpf' => $cpf,
-                'offers' => $offers->toArray(),
-                'total_offers' => $offers->count(),
+                'cpf' => $cpf->value,
+                'offers' => $offers,
+                'total_offers' => count($offers),
                 'limit' => $limit,
             ]);
 
@@ -243,74 +183,55 @@ class CreditOfferController extends Controller
         ]);
 
         try {
-            $cpf = $request->input('cpf');
+            $cpf = new CPF($request->input('cpf'));
             $amountCents = $request->input('amount');
             $installments = $request->input('installments');
             $modality = $request->input('modality');
 
-            // Find available offers for the CPF, grouped by institution and modality (excluding soft deleted)
-            $offers = DB::table('customers')
-                ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
-                ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
-                ->join('credit_modalities', 'credit_offers.modality_id', '=', 'credit_modalities.id')
-                ->select(
-                    'institutions.name as financial_institution',
-                    'credit_modalities.name as credit_modality',
-                    DB::raw('MAX(credit_offers.max_amount_cents) as max_amount_cents'),
-                    DB::raw('MIN(credit_offers.min_amount_cents) as min_amount_cents'),
-                    DB::raw('MAX(credit_offers.max_installments) as max_installments'),
-                    DB::raw('MIN(credit_offers.min_installments) as min_installments'),
-                    DB::raw('MIN(credit_offers.monthly_interest_rate) as monthly_interest_rate')
-                )
-                ->where('customers.cpf', $cpf)
-                ->where('customers.is_active', true)
-                ->whereNull('credit_offers.deleted_at')
-                ->where('credit_offers.min_amount_cents', '<=', $amountCents)
-                ->where('credit_offers.max_amount_cents', '>=', $amountCents)
-                ->where('credit_offers.min_installments', '<=', $installments)
-                ->where('credit_offers.max_installments', '>=', $installments);
+            $offers = $this->creditOfferRepository->getSimulationOffers($cpf, $amountCents, $installments, $modality);
 
-            // Add modality filter if specified
-            if ($modality) {
-                $offers->where('credit_modalities.name', $modality);
-            }
-
-            $offers = $offers->groupBy('institutions.name', 'credit_modalities.name')
-                ->get();
-
-            if ($offers->isEmpty()) {
+            if (empty($offers)) {
                 return response()->json([
                     'error' => 'no_offers',
                     'message' => 'No offers available for the provided parameters',
                 ], 404);
             }
 
-            // Calculate simulations for each offer
+            // Calculate simulations for each offer using domain service
             $simulations = [];
             foreach ($offers as $offer) {
-                $monthlyRate = floatval($offer->monthly_interest_rate);
-                $requestedAmount = $amountCents;
-                $numInstallments = $installments;
+                $money = Money::fromCents($amountCents);
+                $interestRate = new InterestRate((float) $offer->monthly_interest_rate);
+                $installmentCount = new InstallmentCount($installments);
 
-                // Calculate installment using compound interest formula
-                $monthlyPayment = $this->calculateInstallment($requestedAmount, $monthlyRate, $numInstallments);
-                $totalAmount = $monthlyPayment * $numInstallments;
-                $totalInterest = $totalAmount - $requestedAmount;
+                $monthlyPayment = $this->creditCalculatorService->calculateMonthlyPayment(
+                    $money,
+                    $interestRate,
+                    $installmentCount
+                );
 
-                // Calculate annual rate: monthly rate × 12
-                $annualRate = $monthlyRate * 12;
+                $totalAmount = $this->creditCalculatorService->calculateTotalAmount(
+                    $money,
+                    $interestRate,
+                    $installmentCount
+                );
+
+                $totalInterest = $this->creditCalculatorService->calculateTotalInterest(
+                    $money,
+                    $interestRate,
+                    $installmentCount
+                );
 
                 $simulations[] = [
                     'financial_institution' => $offer->financial_institution,
                     'credit_modality' => $offer->credit_modality,
-                    'requested_amount' => $requestedAmount,
-                    'total_amount' => $totalAmount,
-                    'monthly_interest_rate' => $monthlyRate,
-                    'annual_interest_rate' => $annualRate,
-                    'installments' => $numInstallments,
-                    'monthly_payment' => $monthlyPayment,
-                    'total_interest' => $totalInterest,
-                    // Available limits for this modality
+                    'requested_amount' => $amountCents,
+                    'total_amount' => $totalAmount->amountInCents,
+                    'monthly_interest_rate' => (float) $offer->monthly_interest_rate,
+                    'annual_interest_rate' => $interestRate->monthlyRate * 12,
+                    'installments' => $installments,
+                    'monthly_payment' => $monthlyPayment->amountInCents,
+                    'total_interest' => $totalInterest->amountInCents,
                     'limits' => [
                         'min_amount' => $offer->min_amount_cents,
                         'max_amount' => $offer->max_amount_cents,
@@ -328,16 +249,15 @@ class CreditOfferController extends Controller
             // Return up to 3 best offers
             $bestOffers = array_slice($simulations, 0, 3);
 
-            return response()->json([
-                'status' => 'success',
-                'cpf' => $cpf,
-                'parameters' => [
-                    'amount' => $amountCents,
-                    'installments' => $installments,
-                ],
-                'offers' => $bestOffers,
-                'total_offers_found' => count($simulations),
-            ]);
+            $simulationDTO = new CreditSimulationResponseDTO(
+                cpf: $cpf->value,
+                requestedAmount: $amountCents / 100, // Convert to currency unit
+                requestedInstallments: $installments,
+                simulations: $bestOffers,
+                status: 'success'
+            );
+
+            return (new CreditSimulationResource($simulationDTO))->response();
 
         } catch (InvalidArgumentException $e) {
             return response()->json([
@@ -351,26 +271,6 @@ class CreditOfferController extends Controller
                 'message' => 'Internal server error',
             ], 500);
         }
-    }
-
-    private function calculateInstallment(int $amountCents, float $monthlyRate, int $numInstallments): int
-    {
-        if ($monthlyRate == 0) {
-            // If rate is zero, simple division (no interest)
-            return intval($amountCents / $numInstallments);
-        }
-
-        // COMPOUND INTEREST formula for payment (PMT)
-        // PMT = PV * [i * (1+i)^n] / [(1+i)^n - 1]
-        // Where:
-        // PV = Present Value (loan amount)
-        // i = interest rate per period (monthly)
-        // n = number of periods (installments)
-
-        $factor = pow(1 + $monthlyRate, $numInstallments); // (1+i)^n
-        $installment = $amountCents * ($monthlyRate * $factor) / ($factor - 1);
-
-        return intval(round($installment));
     }
 
     public function health(): JsonResponse
