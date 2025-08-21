@@ -95,14 +95,18 @@ describe('Credit Offer API', function () {
     test('credit status with invalid request ID format returns validation error', function () {
         $response = $this->getJson('/api/v1/credit/status/invalid-uuid');
 
-        $response->assertStatus(404); // Route não encontrada devido ao where constraint
+        $response->assertStatus(400) // Invalid UUID format validation
+            ->assertJsonStructure([
+                'error',
+                'message',
+            ]);
     });
 
     test('credit simulation with valid data but no offers returns 404', function () {
         $response = $this->postJson('/api/v1/credit/simulate', [
             'cpf' => '12345678909',
-            'valor_desejado' => 5000000, // R$ 50.000,00 em centavos
-            'quantidade_parcelas' => 24,
+            'amount' => 5000000, // R$ 50.000,00 in cents
+            'installments' => 24,
         ]);
 
         $response->assertStatus(404)

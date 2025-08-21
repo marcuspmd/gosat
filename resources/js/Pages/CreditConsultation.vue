@@ -217,13 +217,13 @@ const simularOferta = async (formData) => {
 
         const requestData = {
             cpf: cpfNumbers,
-            valor_desejado: valorNumbers, // em centavos
-            quantidade_parcelas: parcelasDesejadas
+            amount: valorNumbers, // in cents
+            installments: parcelasDesejadas
         }
 
-        // Adicionar modalidade se uma específica foi selecionada
+        // Add modality if a specific one was selected
         if (formData.modalidadeSelecionada) {
-            requestData.modalidade = formData.modalidadeSelecionada
+            requestData.modality = formData.modalidadeSelecionada
         }
 
         const response = await axios.post('/api/v1/credit/simulate', requestData)
@@ -231,12 +231,12 @@ const simularOferta = async (formData) => {
         if (response.data.status === 'success') {
             let result = response.data
             
-            // Se uma modalidade específica foi selecionada, filtrar os resultados
+            // If a specific modality was selected, filter the results
             if (formData.modalidadeSelecionada) {
-                result.ofertas = result.ofertas.filter(
-                    oferta => oferta.modalidadeCredito === formData.modalidadeSelecionada
+                result.offers = result.offers.filter(
+                    offer => offer.credit_modality === formData.modalidadeSelecionada
                 )
-                result.total_ofertas_encontradas = result.ofertas.length
+                result.total_offers_found = result.offers.length
             }
             
             simulationResult.value = result

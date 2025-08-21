@@ -29,7 +29,7 @@ class CreditOfferController extends Controller
             return response()->json([
                 'request_id' => $requestId,
                 'status' => 'processing',
-                'message' => 'Consulta em andamento. Use o request_id para verificar o status.',
+                'message' => 'Request in progress. Use the request_id to check status.',
             ], 202);
 
         } catch (InvalidArgumentException $e) {
@@ -41,7 +41,7 @@ class CreditOfferController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'internal_error',
-                'message' => 'Erro interno do servidor',
+                'message' => 'Internal server error',
             ], 500);
         }
     }
@@ -100,7 +100,7 @@ class CreditOfferController extends Controller
         } catch (\Exception) {
             return response()->json([
                 'error' => 'internal_error',
-                'message' => 'Erro ao buscar customers e ofertas',
+                'message' => 'Error fetching customers and offers',
             ], 500);
         }
     }
@@ -112,7 +112,7 @@ class CreditOfferController extends Controller
             if (! preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $requestId)) {
                 return response()->json([
                     'error' => 'invalid_request_id',
-                    'message' => 'ID de requisição inválido',
+                    'message' => 'Invalid request ID',
                 ], 400);
             }
 
@@ -125,7 +125,7 @@ class CreditOfferController extends Controller
                 return response()->json([
                     'request_id' => $requestId,
                     'status' => 'processing',
-                    'message' => 'Consulta ainda em processamento',
+                    'message' => 'Request still processing',
                     'created_at' => date('c', $pendingJob->created_at),
                     'attempts' => $pendingJob->attempts,
                 ]);
@@ -140,9 +140,9 @@ class CreditOfferController extends Controller
                 return response()->json([
                     'request_id' => $requestId,
                     'status' => 'failed',
-                    'message' => 'Consulta falhou - erro no processamento',
+                    'message' => 'Request failed - processing error',
                     'failed_at' => $failedJob->failed_at,
-                    'error' => 'Erro interno durante o processamento',
+                    'error' => 'Internal error during processing',
                 ]);
             }
 
@@ -156,7 +156,7 @@ class CreditOfferController extends Controller
                 return response()->json([
                     'request_id' => $requestId,
                     'status' => 'completed',
-                    'message' => 'Consulta concluída com sucesso',
+                    'message' => 'Request completed successfully',
                     'offers_found' => $offersCount,
                 ]);
             }
@@ -166,14 +166,14 @@ class CreditOfferController extends Controller
             return response()->json([
                 'request_id' => $requestId,
                 'status' => 'completed',
-                'message' => 'Consulta concluída - nenhuma oferta encontrada',
+                'message' => 'Request completed - no offers found',
                 'offers_found' => 0,
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'internal_error',
-                'message' => 'Erro ao verificar status da consulta',
+                'message' => 'Error checking request status',
             ], 500);
         }
     }
@@ -228,7 +228,7 @@ class CreditOfferController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'internal_error',
-                'message' => 'Erro ao buscar ofertas',
+                'message' => 'Error fetching offers',
             ], 500);
         }
     }
@@ -237,23 +237,25 @@ class CreditOfferController extends Controller
     {
         $request->validate([
             'cpf' => 'required|string|regex:/^\d{11}$/',
-            'valor_desejado' => 'required|integer|min:100', // em centavos
-            'quantidade_parcelas' => 'required|integer|min:1',
+            'amount' => 'required|integer|min:100', // in cents
+            'installments' => 'required|integer|min:1',
+            'modality' => 'nullable|string',
         ]);
 
         try {
             $cpf = $request->input('cpf');
-            $valorDesejadoCentavos = $request->input('valor_desejado');
-            $quantidadeParcelas = $request->input('quantidade_parcelas');
+            $amountCents = $request->input('amount');
+            $installments = $request->input('installments');
+            $modality = $request->input('modality');
 
-            // Buscar ofertas disponíveis para o CPF, agrupadas por instituição e modalidade (excludindo soft deleted)
-            $ofertas = DB::table('customers')
+            // Find available offers for the CPF, grouped by institution and modality (excluding soft deleted)
+            $offers = DB::table('customers')
                 ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
                 ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
                 ->join('credit_modalities', 'credit_offers.modality_id', '=', 'credit_modalities.id')
                 ->select(
-                    'institutions.name as instituicao_financeira',
-                    'credit_modalities.name as modalidade_credito',
+                    'institutions.name as financial_institution',
+                    'credit_modalities.name as credit_modality',
                     DB::raw('MAX(credit_offers.max_amount_cents) as max_amount_cents'),
                     DB::raw('MIN(credit_offers.min_amount_cents) as min_amount_cents'),
                     DB::raw('MAX(credit_offers.max_installments) as max_installments'),
@@ -263,73 +265,78 @@ class CreditOfferController extends Controller
                 ->where('customers.cpf', $cpf)
                 ->where('customers.is_active', true)
                 ->whereNull('credit_offers.deleted_at')
-                ->where('credit_offers.min_amount_cents', '<=', $valorDesejadoCentavos)
-                ->where('credit_offers.max_amount_cents', '>=', $valorDesejadoCentavos)
-                ->where('credit_offers.min_installments', '<=', $quantidadeParcelas)
-                ->where('credit_offers.max_installments', '>=', $quantidadeParcelas)
-                ->groupBy('institutions.name', 'credit_modalities.name')
+                ->where('credit_offers.min_amount_cents', '<=', $amountCents)
+                ->where('credit_offers.max_amount_cents', '>=', $amountCents)
+                ->where('credit_offers.min_installments', '<=', $installments)
+                ->where('credit_offers.max_installments', '>=', $installments);
+
+            // Add modality filter if specified
+            if ($modality) {
+                $offers->where('credit_modalities.name', $modality);
+            }
+
+            $offers = $offers->groupBy('institutions.name', 'credit_modalities.name')
                 ->get();
 
-            if ($ofertas->isEmpty()) {
+            if ($offers->isEmpty()) {
                 return response()->json([
                     'error' => 'no_offers',
-                    'message' => 'Nenhuma oferta disponível para os parâmetros informados',
+                    'message' => 'No offers available for the provided parameters',
                 ], 404);
             }
 
-            // Calcular simulações para cada oferta
-            $simulacoes = [];
-            foreach ($ofertas as $oferta) {
-                $taxaMensal = floatval($oferta->monthly_interest_rate);
-                $valorSolicitado = $valorDesejadoCentavos;
-                $numParcelas = $quantidadeParcelas;
+            // Calculate simulations for each offer
+            $simulations = [];
+            foreach ($offers as $offer) {
+                $monthlyRate = floatval($offer->monthly_interest_rate);
+                $requestedAmount = $amountCents;
+                $numInstallments = $installments;
 
-                // Calcular parcela usando fórmula de juros compostos
-                $parcelaMensal = $this->calcularParcela($valorSolicitado, $taxaMensal, $numParcelas);
-                $valorTotal = $parcelaMensal * $numParcelas;
-                $totalJuros = $valorTotal - $valorSolicitado;
+                // Calculate installment using compound interest formula
+                $monthlyPayment = $this->calculateInstallment($requestedAmount, $monthlyRate, $numInstallments);
+                $totalAmount = $monthlyPayment * $numInstallments;
+                $totalInterest = $totalAmount - $requestedAmount;
 
-                // Calcular taxa anual: taxa mensal × 12
-                $taxaAnual = $taxaMensal * 12;
+                // Calculate annual rate: monthly rate × 12
+                $annualRate = $monthlyRate * 12;
 
-                $simulacoes[] = [
-                    'instituicaoFinanceira' => $oferta->instituicao_financeira,
-                    'modalidadeCredito' => $oferta->modalidade_credito,
-                    'valorSolicitado' => $valorSolicitado,
-                    'valorAPagar' => $valorTotal,
-                    'taxaJurosMensal' => $taxaMensal,
-                    'taxaJurosAnual' => $taxaAnual,
-                    'qntParcelas' => $numParcelas,
-                    'parcelaMensal' => $parcelaMensal,
-                    'totalJuros' => $totalJuros,
-                    // Limites disponíveis para esta modalidade
-                    'limites' => [
-                        'valorMinimo' => $oferta->min_amount_cents,
-                        'valorMaximo' => $oferta->max_amount_cents,
-                        'parcelasMinima' => $oferta->min_installments,
-                        'parcelasMaxima' => $oferta->max_installments,
+                $simulations[] = [
+                    'financial_institution' => $offer->financial_institution,
+                    'credit_modality' => $offer->credit_modality,
+                    'requested_amount' => $requestedAmount,
+                    'total_amount' => $totalAmount,
+                    'monthly_interest_rate' => $monthlyRate,
+                    'annual_interest_rate' => $annualRate,
+                    'installments' => $numInstallments,
+                    'monthly_payment' => $monthlyPayment,
+                    'total_interest' => $totalInterest,
+                    // Available limits for this modality
+                    'limits' => [
+                        'min_amount' => $offer->min_amount_cents,
+                        'max_amount' => $offer->max_amount_cents,
+                        'min_installments' => $offer->min_installments,
+                        'max_installments' => $offer->max_installments,
                     ],
-                    'taxaJuros' => $taxaMensal,
                 ];
             }
 
-            // Ordenar por valor total a pagar (menor = mais vantajoso)
-            usort($simulacoes, function ($a, $b) {
-                return $a['valorAPagar'] <=> $b['valorAPagar'];
+            // Sort by total amount to pay (lower = better)
+            usort($simulations, function ($a, $b) {
+                return $a['total_amount'] <=> $b['total_amount'];
             });
 
-            // Retornar até 3 melhores ofertas
-            $melhoresOfertas = array_slice($simulacoes, 0, 3);
+            // Return up to 3 best offers
+            $bestOffers = array_slice($simulations, 0, 3);
 
             return response()->json([
                 'status' => 'success',
                 'cpf' => $cpf,
-                'parametros' => [
-                    'valor_desejado' => $valorDesejadoCentavos,
-                    'quantidade_parcelas' => $quantidadeParcelas,
+                'parameters' => [
+                    'amount' => $amountCents,
+                    'installments' => $installments,
                 ],
-                'ofertas' => $melhoresOfertas,
-                'total_ofertas_encontradas' => count($simulacoes),
+                'offers' => $bestOffers,
+                'total_offers_found' => count($simulations),
             ]);
 
         } catch (InvalidArgumentException $e) {
@@ -341,29 +348,29 @@ class CreditOfferController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'internal_error',
-                'message' => 'Erro interno do servidor',
+                'message' => 'Internal server error',
             ], 500);
         }
     }
 
-    private function calcularParcela(int $valorCentavos, float $taxaMensal, int $numParcelas): int
+    private function calculateInstallment(int $amountCents, float $monthlyRate, int $numInstallments): int
     {
-        if ($taxaMensal == 0) {
-            // Se taxa é zero, é divisão simples (sem juros)
-            return intval($valorCentavos / $numParcelas);
+        if ($monthlyRate == 0) {
+            // If rate is zero, simple division (no interest)
+            return intval($amountCents / $numInstallments);
         }
 
-        // Fórmula de JUROS COMPOSTOS para pagamento (PMT)
+        // COMPOUND INTEREST formula for payment (PMT)
         // PMT = PV * [i * (1+i)^n] / [(1+i)^n - 1]
-        // Onde:
-        // PV = Valor Presente (valor do empréstimo)
-        // i = taxa de juros por período (mensal)
-        // n = número de períodos (parcelas)
+        // Where:
+        // PV = Present Value (loan amount)
+        // i = interest rate per period (monthly)
+        // n = number of periods (installments)
 
-        $fator = pow(1 + $taxaMensal, $numParcelas); // (1+i)^n
-        $parcela = $valorCentavos * ($taxaMensal * $fator) / ($fator - 1);
+        $factor = pow(1 + $monthlyRate, $numInstallments); // (1+i)^n
+        $installment = $amountCents * ($monthlyRate * $factor) / ($factor - 1);
 
-        return intval(round($parcela));
+        return intval(round($installment));
     }
 
     public function health(): JsonResponse
