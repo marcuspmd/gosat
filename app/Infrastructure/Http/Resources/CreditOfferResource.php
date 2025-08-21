@@ -30,23 +30,23 @@ class CreditOfferResource extends JsonResource
             ],
             'amounts' => [
                 'min' => [
-                    'cents' => $this->resource->minAmount?->amountInCents ?? 0,
-                    'formatted' => $this->resource->minAmount?->formatted ?? 'R$ 0,00',
+                    'cents' => $this->resource->minAmount->amountInCents ?? 0,
+                    'formatted' => $this->resource->minAmount->formatted ?? 'R$ 0,00',
                 ],
                 'max' => [
-                    'cents' => $this->resource->maxAmount?->amountInCents ?? 0,
-                    'formatted' => $this->resource->maxAmount?->formatted ?? 'R$ 0,00',
+                    'cents' => $this->resource->maxAmount->amountInCents ?? 0,
+                    'formatted' => $this->resource->maxAmount->formatted ?? 'R$ 0,00',
                 ],
             ],
             'installments' => [
-                'min' => $this->resource->minInstallments?->value ?? 1,
-                'max' => $this->resource->maxInstallments?->value ?? 1,
+                'min' => $this->resource->minInstallments->value ?? 1,
+                'max' => $this->resource->maxInstallments->value ?? 1,
             ],
             'interest_rate' => [
-                'monthly' => $this->resource->monthlyInterestRate?->monthlyRate ?? 0,
-                'annual' => $this->resource->monthlyInterestRate?->annualRate ?? 0,
-                'formatted_monthly' => $this->resource->monthlyInterestRate?->formattedMonthly ?? '0,0000% a.m.',
-                'formatted_annual' => $this->resource->monthlyInterestRate?->formattedAnnual ?? '0,00% a.a.',
+                'monthly' => $this->resource->monthlyInterestRate->monthlyRate ?? 0,
+                'annual' => $this->resource->monthlyInterestRate->annualRate ?? 0,
+                'formatted_monthly' => $this->resource->monthlyInterestRate->formattedMonthly ?? '0,0000% a.m.',
+                'formatted_annual' => $this->resource->monthlyInterestRate->formattedAnnual ?? '0,00% a.a.',
             ],
             'calculated_values' => [
                 'monthly_payment' => [

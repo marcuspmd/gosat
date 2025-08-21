@@ -46,7 +46,7 @@ final class CreditModalityEntity
     public static function fromModel(CreditModalityModel $model): self
     {
         return new self(
-            id: $model->id,
+            id: (string) $model->id,
             standardCode: $model->standard_code,
             name: $model->name,
             isActive: $model->is_active,

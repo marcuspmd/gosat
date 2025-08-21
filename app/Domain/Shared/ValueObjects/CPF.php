@@ -38,6 +38,11 @@ final class CPF
         return substr($this->value, 0, 3) . '.***.***-' . substr($this->value, -2);
     }
 
+    public function asString(): string
+    {
+        return $this->value;
+    }
+
     private function validateCPF(string $cpf): bool
     {
         $testCpfs = ['11111111111', '12312312312', '22222222222'];

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Infrastructure\Http\Controllers\Api\CreditOfferController;
+use App\Infrastructure\Http\Controllers\Api\SSEController;
 use App\Infrastructure\Http\Controllers\Api\SwaggerController;
 use App\Infrastructure\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
@@ -33,23 +34,27 @@ Route::prefix('v1')->group(function () {
 
     Route::prefix('credit')->name('api.credit.')->group(function () {
 
+        Route::get('/', [CreditOfferController::class, 'getCreditOffers'])
+            ->name('index');
+
         Route::post('/', [CreditOfferController::class, 'creditRequest'])
-            ->name('creditRequest');
+            ->name('store');
 
-        Route::post('/search', [CreditOfferController::class, 'creditRequest'])
-            ->name('creditSearch');
-
-        Route::get('/status/{requestId}', [CreditOfferController::class, 'getRequestStatus'])
-            ->name('getRequestStatus');
+        Route::get('/{requestId}/status', [CreditOfferController::class, 'getRequestStatus'])
+            ->whereUuid('requestId')
+            ->name('status');
 
         Route::get('/customers-with-offers', [CreditOfferController::class, 'getAllCustomersWithOffers'])
             ->name('customersWithOffers');
 
-        Route::get('/offers', [CreditOfferController::class, 'getCreditOffers'])
-            ->name('getOffers');
-
         Route::post('/simulate', [CreditOfferController::class, 'simulateCredit'])
             ->name('simulateCredit');
 
+    });
+
+    Route::prefix('sse')->name('api.sse.')->group(function () {
+        Route::get('/notifications', [SSEController::class, 'stream'])->name('notifications');
+        Route::post('/test', [SSEController::class, 'testEvent'])->name('test');
+        Route::post('/clear', [SSEController::class, 'clearEvents'])->name('clear');
     });
 });

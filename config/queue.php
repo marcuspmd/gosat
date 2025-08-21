@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'database'),
+    // Default ajustado para 'redis' para alinhar com ambiente docker/produção.
+    'default' => env('QUEUE_CONNECTION', 'redis'),
 
     /*
     |--------------------------------------------------------------------------

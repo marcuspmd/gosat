@@ -31,8 +31,8 @@ class CreditSimulationResource extends JsonResource
             'best_offer' => $this->resource->getBestSimulation(),
             'generated_at' => now()->toISOString(),
             'links' => [
-                'search' => route('api.credit.search'),
-                'offers' => route('api.credit.offers'),
+                'search' => route('api.credit.store'),
+                'index' => route('api.credit.index'),
             ],
         ];
     }

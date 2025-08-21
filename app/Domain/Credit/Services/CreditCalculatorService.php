@@ -24,7 +24,7 @@ final readonly class CreditCalculatorService
         $rate = $monthlyRate->monthlyRate;
         $periods = $installments->value;
 
-        // Fórmula SAC (Sistema de Amortização Constante) - Price
+        // Fórmula Price (PMT): prestação fixa com capitalização composta
         $factor = $monthlyRate->compound($periods);
         $monthlyPayment = $principalAmount->value * ($rate * $factor) / ($factor - 1);
 

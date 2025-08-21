@@ -68,7 +68,7 @@ final class InstitutionEntity
     public static function fromModel(InstitutionModel $model): self
     {
         return new self(
-            id: $model->id,
+            id: (string) $model->id,
             institutionId: (int) $model->id,
             name: $model->name,
             isActive: $model->is_active,

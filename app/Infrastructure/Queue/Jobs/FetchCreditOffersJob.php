@@ -23,7 +23,7 @@ class FetchCreditOffersJob implements ShouldQueue
     use SerializesModels;
 
     public function __construct(
-        private CPF $cpf,
+        private string $cpf,
         private string $creditRequestId
     ) {
         $this->onQueue('credit_offers');
@@ -32,28 +32,30 @@ class FetchCreditOffersJob implements ShouldQueue
     public function handle(FetchExternalCreditDataUseCase $useCase): void
     {
         try {
+            $cpfVO = new CPF($this->cpf);
+
             Log::info('Iniciando busca de ofertas de crédito', [
-                'cpf' => $this->cpf->masked(),
+                'cpf' => $cpfVO->masked(),
                 'attempt' => $this->attempts(),
             ]);
 
             // Broadcast job started event
             SSEController::broadcastEvent('job.started', [
-                'cpf' => $this->cpf->masked(),
+                'cpf' => $cpfVO->masked(),
                 'message' => 'Iniciando busca de ofertas de crédito...',
             ]);
 
-            $offers = $useCase->execute($this->cpf, $this->creditRequestId);
+            $offers = $useCase->execute($cpfVO, $this->creditRequestId);
 
             Log::info('Ofertas de crédito processadas com sucesso', [
-                'cpf' => $this->cpf->masked(),
+                'cpf' => $cpfVO->masked(),
                 'offers_count' => count($offers),
                 'attempt' => $this->attempts(),
             ]);
 
             // Broadcast job completed event
             SSEController::broadcastEvent('job.completed', [
-                'cpf' => $this->cpf->masked(),
+                'cpf' => $cpfVO->masked(),
                 'ofertas_count' => count($offers),
                 'ofertas' => $offers,
                 'message' => count($offers) > 0
@@ -62,8 +64,14 @@ class FetchCreditOffersJob implements ShouldQueue
             ]);
 
         } catch (\Exception $e) {
+            $cpfForLog = null;
+            try {
+                $cpfForLog = (new CPF($this->cpf))->masked();
+            } catch (\Throwable) {
+                $cpfForLog = '***';
+            }
             Log::warning('Erro ao buscar ofertas de crédito', [
-                'cpf' => $this->cpf->masked(),
+                'cpf' => $cpfForLog,
                 'error' => $e->getMessage(),
                 'attempt' => $this->attempts(),
             ]);
@@ -74,8 +82,14 @@ class FetchCreditOffersJob implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
+        $cpfForLog = null;
+        try {
+            $cpfForLog = (new CPF($this->cpf))->masked();
+        } catch (\Throwable) {
+            $cpfForLog = '***';
+        }
         Log::error('Falha definitiva na busca de ofertas de crédito', [
-            'cpf' => $this->cpf->masked(),
+            'cpf' => $cpfForLog,
             'error' => $exception->getMessage(),
             'trace' => $exception->getTraceAsString(),
             'attempts' => $this->attempts(),
@@ -84,7 +98,7 @@ class FetchCreditOffersJob implements ShouldQueue
 
         // Broadcast final failure event
         SSEController::broadcastEvent('job.failed', [
-            'cpf' => $this->cpf->masked(),
+            'cpf' => $cpfForLog,
             'error' => $exception->getMessage(),
             'message' => 'Erro ao buscar ofertas de crédito. Tente novamente.',
         ]);

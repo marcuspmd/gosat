@@ -19,9 +19,9 @@ class FixSwaggerResponse
     {
         $response = $next($request);
 
-        // If this is a Swagger docs request and contains JSON content,
-        // force the status to 200
-        if (str_contains($request->path(), 'docs') &&
+        // Apenas para a rota nomeada 'api.docs.json', se conteúdo JSON estiver presente,
+        // forçar status 200 para compatibilidade com Swagger UI
+        if ($request->route()?->getName() === 'api.docs.json' &&
             $response->headers->get('content-type') === 'application/json' &&
             ! empty($response->getContent())) {
 

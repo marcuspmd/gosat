@@ -1,12 +1,12 @@
 <template>
     <div class="mt-6">
         <h4 class="text-lg font-semibold text-gray-800 mb-4">
-            Melhores Ofertas Encontradas ({{ result.offers.length }})
+            Melhores Ofertas Encontradas ({{ result.simulations.length }})
         </h4>
 
         <div class="space-y-4">
             <div
-                v-for="(offer, index) in result.offers"
+                v-for="(offer, index) in result.simulations"
                 :key="index"
                 class="border rounded-lg p-4"
                 :class="index === 0 ? 'border-green-500 bg-green-50' : index === 1 ? 'border-blue-500 bg-blue-50' : 'border-orange-500 bg-orange-50'"

@@ -1,0 +1,22 @@
+includes:
+    - vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - tests
+    level: 5
+    checkMissingTypehints: true
+    ignoreErrors:
+        - "#Parameter .* expects DateTimeImmutable\\|null, Carbon\\\\Carbon\\|null given#"
+        - "#Property .* does not accept DateTimeImmutable\\|null#"
+        - "#Property .* \\(int\\) does not accept string#"
+        - "#Parameter .* expects .*, Illuminate\\\\Database\\\\Eloquent\\\\Model\\|null given#"
+        - "#Access to an undefined property PHPUnit\\\\Framework\\\\TestCase::\\$.*#"
+        - "#Undefined variable: \\$this#"
+        - "#Call to an undefined method PHPUnit\\\\Framework\\\\TestCase::.*#"
+    excludePaths:
+        - vendor
+        - storage
+    bootstrapFiles:
+        - vendor/autoload.php

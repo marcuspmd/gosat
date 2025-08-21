@@ -43,12 +43,12 @@ final readonly class ExternalCreditApiService
         $endpoint = sprintf('%s/simulacao/credito', self::API_BASE_URL);
 
         $requestData = [
-            'cpf' => $data->cpf->value,
+            'cpf' => $data->cpf->asString(),
         ];
 
         Log::info('Iniciando requisição de crédito', [
             'endpoint' => $endpoint,
-            'cpf' => $data->cpf->value,
+            'cpf' => $data->cpf->asString(),
             'request_data' => $requestData,
         ]);
 
@@ -163,7 +163,7 @@ final readonly class ExternalCreditApiService
                     'key' => $key,
                     'reason' => $response['reason'] ?? 'Unknown',
                 ]);
-                $offer = new ExternalCreditOfferDto;
+                $offer = new ExternalCreditOfferDto();
             }
 
             $institutionData[$institutionIndex]['modalities'][$modalityIndex] = new ExternalCreditModalityDto(
@@ -215,7 +215,7 @@ final readonly class ExternalCreditApiService
         $endpoint = sprintf('%s/simulacao/oferta', self::API_BASE_URL);
 
         $requestData = [
-            'cpf' => $cpf->value,
+            'cpf' => $cpf->asString(),
             'instituicao_id' => $institutionId,
             'codModalidade' => $modalityCode,
         ];
@@ -231,7 +231,7 @@ final readonly class ExternalCreditApiService
                     $statusCode = $response->getStatusCode();
 
                     Log::info('Resposta de oferta recebida', [
-                        'cpf' => $cpf->value,
+                        'cpf' => $cpf->asString(),
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
                         'status_code' => $statusCode,
@@ -239,7 +239,7 @@ final readonly class ExternalCreditApiService
 
                     if ($statusCode !== 200) {
                         Log::error('Erro na requisição de oferta', [
-                            'cpf' => $cpf->value,
+                            'cpf' => $cpf->asString(),
                             'institution_id' => $institutionId,
                             'modality_code' => $modalityCode,
                             'status_code' => $statusCode,
@@ -255,7 +255,7 @@ final readonly class ExternalCreditApiService
                     $body = $response->getBody()->getContents();
 
                     Log::debug('Body da resposta de oferta', [
-                        'cpf' => $cpf->value,
+                        'cpf' => $cpf->asString(),
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
                         'body' => $body,
@@ -265,7 +265,7 @@ final readonly class ExternalCreditApiService
 
                     if (json_last_error() !== JSON_ERROR_NONE) {
                         Log::error('Erro ao decodificar JSON da oferta', [
-                            'cpf' => $cpf->value,
+                            'cpf' => $cpf->asString(),
                             'institution_id' => $institutionId,
                             'modality_code' => $modalityCode,
                             'json_error' => json_last_error_msg(),
@@ -278,7 +278,7 @@ final readonly class ExternalCreditApiService
                     $offerDto = $this->populateExternalCreditOfferDto($decoded);
 
                     Log::info('DTO de oferta criado com sucesso', [
-                        'cpf' => $cpf->value,
+                        'cpf' => $cpf->asString(),
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
                         'offer' => [
@@ -294,13 +294,13 @@ final readonly class ExternalCreditApiService
                 },
                 function ($reason) use ($cpf, $institutionId, $modalityCode) {
                     Log::error('Falha na requisição de oferta', [
-                        'cpf' => $cpf->value,
+                        'cpf' => $cpf->asString(),
                         'institution_id' => $institutionId,
                         'modality_code' => $modalityCode,
                         'reason' => $reason instanceof Throwable ? $reason->getMessage() : (string) $reason,
                     ]);
 
-                    return new ExternalCreditOfferDto;
+                    return new ExternalCreditOfferDto();
                 }
             );
     }

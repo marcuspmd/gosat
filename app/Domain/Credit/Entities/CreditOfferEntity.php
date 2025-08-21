@@ -62,7 +62,7 @@ final class CreditOfferEntity
     public static function fromModel(CreditOfferModel $model): self
     {
         return new self(
-            id: $model->id,
+            id: (string) $model->id,
             customer: CustomerEntity::fromModel($model->customer),
             institution: InstitutionEntity::fromModel($model->institution),
             modality: CreditModalityEntity::fromModel($model->modality),

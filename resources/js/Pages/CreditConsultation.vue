@@ -196,17 +196,7 @@ const simularOferta = async (formData) => {
         }
     }
 
-    // Validação de valor
-    if (valorNumbers < ranges.min_amount_cents || valorNumbers > ranges.max_amount_cents) {
-        searchError.value = `Valor deve estar entre ${formatMoney(ranges.min_amount_cents)} e ${formatMoney(ranges.max_amount_cents)}`
-        return
-    }
-
-    // Validação de parcelas
-    if (parcelasDesejadas < ranges.min_installments || parcelasDesejadas > ranges.max_installments) {
-        searchError.value = `Número de parcelas deve estar entre ${ranges.min_installments} e ${ranges.max_installments}`
-        return
-    }
+    // Note: Validation moved to backend - let API handle range validation
 
     simulationLoading.value = true
     simulationResult.value = null
@@ -228,15 +218,15 @@ const simularOferta = async (formData) => {
 
         const response = await axios.post('/api/v1/credit/simulate', requestData)
 
-        if (response.data.status === 'success') {
-            let result = response.data
+        if (response.data.data && response.data.data.status === 'success') {
+            let result = response.data.data
             
             // If a specific modality was selected, filter the results
             if (formData.modalidadeSelecionada) {
-                result.offers = result.offers.filter(
-                    offer => offer.credit_modality === formData.modalidadeSelecionada
+                result.simulations = result.simulations.filter(
+                    simulation => simulation.credit_modality === formData.modalidadeSelecionada
                 )
-                result.total_offers_found = result.offers.length
+                result.total_simulations = result.simulations.length
             }
             
             simulationResult.value = result

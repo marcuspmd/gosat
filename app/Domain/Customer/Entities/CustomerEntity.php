@@ -24,7 +24,7 @@ final class CustomerEntity
     public static function fromModel(CustomerModel $model): self
     {
         return new self(
-            id: $model->id,
+            id: (string) $model->id,
             cpf: new CPF($model->cpf),
             isActive: $model->is_active,
             createdAt: $model->created_at,

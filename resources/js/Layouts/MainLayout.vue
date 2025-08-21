@@ -137,7 +137,7 @@ const connectSSE = () => {
         sessionStorage.setItem('sse_client_id', clientId)
     }
 
-    eventSource = new EventSource(`/api/sse/notifications?client_id=${clientId}`)
+    eventSource = new EventSource(`/api/v1/sse/notifications?client_id=${clientId}`)
 
     eventSource.onopen = () => {
         connectionStatus.value = 'connected'
@@ -156,6 +156,12 @@ const connectSSE = () => {
         }, 5000)
     }
 
+    eventSource.addEventListener('request.queued', (event) => {
+        const data = JSON.parse(event.data)
+        addNotification('info', 'Consulta Iniciada',
+            'Consulta adicionada à fila de processamento...', data)
+    })
+
     eventSource.addEventListener('job.started', (event) => {
         const data = JSON.parse(event.data)
         // Only show notifications for recent events (last 2 minutes)
@@ -164,7 +170,7 @@ const connectSSE = () => {
         const timeDiff = (now - eventTime) / 1000 / 60 // minutes
         
         if (timeDiff <= 2) {
-            addNotification('info', 'Consulta Iniciada',
+            addNotification('info', 'Processando',
                 'Buscando ofertas de crédito...', data)
         }
     })

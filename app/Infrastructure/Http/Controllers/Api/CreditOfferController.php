@@ -24,7 +24,8 @@ class CreditOfferController extends Controller
         private readonly CreditOfferApplicationService $applicationService,
         private readonly CreditOfferRepositoryInterface $creditOfferRepository,
         private readonly CreditCalculatorService $creditCalculatorService
-    ) {}
+    ) {
+    }
 
     public function creditRequest(Request $request): JsonResponse
     {
@@ -76,14 +77,6 @@ class CreditOfferController extends Controller
     public function getRequestStatus(string $requestId): JsonResponse
     {
         try {
-            // Validate UUID format
-            if (! preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $requestId)) {
-                return response()->json([
-                    'error' => 'invalid_request_id',
-                    'message' => 'Invalid request ID',
-                ], 400);
-            }
-
             // Check if there are any jobs running for this request_id
             $pendingJob = $this->creditOfferRepository->findPendingJobByRequestId($requestId);
 
@@ -122,14 +115,11 @@ class CreditOfferController extends Controller
                 ]);
             }
 
-            // If no job found and no offers, the request was probably completed but with no results
-            // Or it's an invalid request_id
+            // Não há jobs nem ofertas com este request_id
             return response()->json([
-                'request_id' => $requestId,
-                'status' => 'completed',
-                'message' => 'Request completed - no offers found',
-                'offers_found' => 0,
-            ]);
+                'error' => 'not_found',
+                'message' => 'Request not found',
+            ], 404);
 
         } catch (\Exception) {
             return response()->json([
@@ -153,7 +143,7 @@ class CreditOfferController extends Controller
             $offers = $this->creditOfferRepository->getOffersForCpf($cpf, $limit);
 
             return response()->json([
-                'cpf' => $cpf->value,
+                'cpf' => $cpf->asString(),
                 'offers' => $offers,
                 'total_offers' => count($offers),
                 'limit' => $limit,
@@ -175,6 +165,8 @@ class CreditOfferController extends Controller
 
     public function simulateCredit(Request $request): JsonResponse
     {
+        \Illuminate\Support\Facades\Log::info('Simulate request data:', $request->all());
+        
         $request->validate([
             'cpf' => 'required|string|regex:/^\d{11}$/',
             'amount' => 'required|integer|min:100', // in cents
@@ -250,7 +242,7 @@ class CreditOfferController extends Controller
             $bestOffers = array_slice($simulations, 0, 3);
 
             $simulationDTO = new CreditSimulationResponseDTO(
-                cpf: $cpf->value,
+                cpf: $cpf->asString(),
                 requestedAmount: $amountCents / 100, // Convert to currency unit
                 requestedInstallments: $installments,
                 simulations: $bestOffers,
