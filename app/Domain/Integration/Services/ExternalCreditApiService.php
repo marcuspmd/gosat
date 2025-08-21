@@ -163,7 +163,7 @@ final readonly class ExternalCreditApiService
                     'key' => $key,
                     'reason' => $response['reason'] ?? 'Unknown',
                 ]);
-                $offer = new ExternalCreditOfferDto();
+                $offer = new ExternalCreditOfferDto;
             }
 
             $institutionData[$institutionIndex]['modalities'][$modalityIndex] = new ExternalCreditModalityDto(
@@ -300,7 +300,7 @@ final readonly class ExternalCreditApiService
                         'reason' => $reason instanceof Throwable ? $reason->getMessage() : (string) $reason,
                     ]);
 
-                    return new ExternalCreditOfferDto();
+                    return new ExternalCreditOfferDto;
                 }
             );
     }

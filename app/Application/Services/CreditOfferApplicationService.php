@@ -15,8 +15,7 @@ final readonly class CreditOfferApplicationService
     public function __construct(
         private QueueServiceInterface $queueService,
         private CreditOfferRepositoryInterface $creditOfferRepository,
-    ) {
-    }
+    ) {}
 
     public function processCreditsRequest(string $cpfString): string
     {

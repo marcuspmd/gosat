@@ -24,8 +24,7 @@ class CreditOfferController extends Controller
         private readonly CreditOfferApplicationService $applicationService,
         private readonly CreditOfferRepositoryInterface $creditOfferRepository,
         private readonly CreditCalculatorService $creditCalculatorService
-    ) {
-    }
+    ) {}
 
     public function creditRequest(Request $request): JsonResponse
     {
@@ -166,7 +165,7 @@ class CreditOfferController extends Controller
     public function simulateCredit(Request $request): JsonResponse
     {
         \Illuminate\Support\Facades\Log::info('Simulate request data:', $request->all());
-        
+
         $request->validate([
             'cpf' => 'required|string|regex:/^\d{11}$/',
             'amount' => 'required|integer|min:100', // in cents

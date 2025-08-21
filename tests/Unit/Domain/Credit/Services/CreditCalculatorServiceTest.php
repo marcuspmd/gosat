@@ -7,7 +7,7 @@ use App\Domain\Shared\ValueObjects\InstallmentCount;
 use App\Domain\Shared\ValueObjects\InterestRate;
 use App\Domain\Shared\ValueObjects\Money;
 
-/**
+/*
  * @property CreditCalculatorService $calculator
  */
 

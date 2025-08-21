@@ -31,7 +31,7 @@ describe('Credit Offer API', function () {
     });
 
     test('credit search with valid CPF returns request ID', function () {
-        $response = $this->postJson('/api/v1/credit/search', [
+        $response = $this->postJson('/api/v1/credit', [
             'cpf' => '12345678909', // CPF de teste válido
         ]);
 
@@ -50,7 +50,7 @@ describe('Credit Offer API', function () {
     });
 
     test('credit search with invalid CPF returns validation error', function () {
-        $response = $this->postJson('/api/v1/credit/search', [
+        $response = $this->postJson('/api/v1/credit', [
             'cpf' => '12345678900', // CPF inválido
         ]);
 
@@ -65,14 +65,14 @@ describe('Credit Offer API', function () {
     });
 
     test('credit search without CPF returns validation error', function () {
-        $response = $this->postJson('/api/v1/credit/search', []);
+        $response = $this->postJson('/api/v1/credit', []);
 
         $response->assertStatus(422) // Laravel validation error
             ->assertJsonValidationErrors(['cpf']);
     });
 
     test('credit search with malformed CPF returns validation error', function () {
-        $response = $this->postJson('/api/v1/credit/search', [
+        $response = $this->postJson('/api/v1/credit', [
             'cpf' => '12345678901', // Sem formatação
         ]);
 
@@ -93,13 +93,10 @@ describe('Credit Offer API', function () {
     });
 
     test('credit status with invalid request ID format returns validation error', function () {
-        $response = $this->getJson('/api/v1/credit/status/invalid-uuid');
+        $response = $this->getJson('/api/v1/credit/invalid-uuid/status');
 
-        $response->assertStatus(400) // Invalid UUID format validation
-            ->assertJsonStructure([
-                'error',
-                'message',
-            ]);
+        // Laravel route constraint validation returns 404 without JSON structure
+        $response->assertStatus(404);
     });
 
     test('credit simulation with valid data but no offers returns 404', function () {
@@ -117,7 +114,7 @@ describe('Credit Offer API', function () {
     });
 
     test('credit offers endpoint with valid CPF returns offers', function () {
-        $response = $this->getJson('/api/v1/credit/offers?cpf=12345678909');
+        $response = $this->getJson('/api/v1/credit?cpf=12345678909');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -128,7 +125,7 @@ describe('Credit Offer API', function () {
     });
 
     test('credit offers endpoint with limit parameter works correctly', function () {
-        $response = $this->getJson('/api/v1/credit/offers?cpf=12345678909&limit=5');
+        $response = $this->getJson('/api/v1/credit?cpf=12345678909&limit=5');
 
         $response->assertStatus(200)
             ->assertJsonStructure([
