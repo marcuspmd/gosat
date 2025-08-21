@@ -69,7 +69,7 @@ final class InstitutionEntity
     {
         return new self(
             id: $model->id,
-            institutionId: (int) $model->id, // Assuming we use the model ID as institution ID
+            institutionId: (int) $model->id,
             name: $model->name,
             isActive: $model->is_active,
             createdAt: $model->created_at,
