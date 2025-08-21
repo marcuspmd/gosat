@@ -8,7 +8,6 @@ use App\Domain\Credit\Entities\CreditOfferEntity;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
 use App\Domain\Shared\ValueObjects\CPF;
 use App\Infrastructure\Persistence\Eloquent\Models\CreditOfferModel;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
 final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterface
@@ -79,5 +78,14 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
         $models = CreditOfferModel::with(['customer', 'institution', 'modality'])->get();
         
         return $models->map(fn ($model) => CreditOfferEntity::fromModel($model))->toArray();
+    }
+
+    public function softDeleteByCpf(CPF $cpf): void
+    {
+        DB::transaction(function () use ($cpf) {
+            CreditOfferModel::whereHas('customer', function($query) use ($cpf) {
+                $query->where('cpf', $cpf->value);
+            })->delete(); // This will soft delete due to SoftDeletes trait
+        });
     }
 }

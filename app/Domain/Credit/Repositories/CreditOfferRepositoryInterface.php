@@ -20,4 +20,6 @@ interface CreditOfferRepositoryInterface
     public function saveAll(array $offers): void;
 
     public function delete(string $id): void;
+
+    public function softDeleteByCpf(CPF $cpf): void;
 }

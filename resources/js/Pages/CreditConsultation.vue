@@ -210,9 +210,9 @@ const simularOferta = async (formData) => {
 
     simulationLoading.value = true
     simulationResult.value = null
-    searchError.value = ''
 
     try {
+        searchError.value = ''
         const cpfNumbers = selectedCustomer.value.cpf.toString()
 
         const requestData = {

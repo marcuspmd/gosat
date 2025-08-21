@@ -50,7 +50,7 @@ class CreditOfferController extends Controller
     public function getAllCustomersWithOffers(): JsonResponse
     {
         try {
-            // Buscar ofertas agrupadas por CPF, instituição e modalidade
+            // Buscar ofertas agrupadas por CPF, instituição e modalidade (excludindo soft deleted)
             $customers = DB::table('customers')
                 ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
                 ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
@@ -67,6 +67,7 @@ class CreditOfferController extends Controller
                     DB::raw('MAX(credit_offers.created_at) as created_at')
                 )
                 ->where('customers.is_active', true)
+                ->whereNull('credit_offers.deleted_at')
                 ->groupBy('customers.cpf', 'institutions.name', 'credit_modalities.name')
                 ->orderBy('customers.cpf')
                 ->orderBy('created_at', 'desc')
@@ -118,7 +119,7 @@ class CreditOfferController extends Controller
             $valorDesejadoCentavos = $request->input('valor_desejado');
             $quantidadeParcelas = $request->input('quantidade_parcelas');
 
-            // Buscar ofertas disponíveis para o CPF, agrupadas por instituição e modalidade
+            // Buscar ofertas disponíveis para o CPF, agrupadas por instituição e modalidade (excludindo soft deleted)
             $ofertas = DB::table('customers')
                 ->join('credit_offers', 'customers.id', '=', 'credit_offers.customer_id')
                 ->join('institutions', 'credit_offers.institution_id', '=', 'institutions.id')
@@ -134,6 +135,7 @@ class CreditOfferController extends Controller
                 )
                 ->where('customers.cpf', $cpf)
                 ->where('customers.is_active', true)
+                ->whereNull('credit_offers.deleted_at')
                 ->where('credit_offers.min_amount_cents', '<=', $valorDesejadoCentavos)
                 ->where('credit_offers.max_amount_cents', '>=', $valorDesejadoCentavos)
                 ->where('credit_offers.min_installments', '<=', $quantidadeParcelas)

@@ -124,7 +124,7 @@
                     </div>
 
                     <!-- Simulation Result -->
-                    <SimulationResult v-if="result" :result="result" />
+                    <SimulationResult v-if="result && !error" :result="result" />
                 </div>
             </div>
         </div>

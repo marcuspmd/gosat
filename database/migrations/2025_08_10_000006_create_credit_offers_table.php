@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table->decimal('monthly_interest_rate', 8, 6)->nullable();
             $table->text('error_message')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->foreign('institution_id')->references('id')->on('institutions')->onDelete('cascade');
