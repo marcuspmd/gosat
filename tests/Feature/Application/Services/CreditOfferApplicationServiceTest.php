@@ -14,12 +14,17 @@ uses(RefreshDatabase::class);
 
 describe('CreditOfferApplicationService', function () {
     beforeEach(function () {
-        $this->queueService = mock(QueueServiceInterface::class);
-        $this->creditOfferRepository = mock(CreditOfferRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&QueueServiceInterface $queueService */
+        $queueService = mock(QueueServiceInterface::class);
+        /** @var \Mockery\MockInterface&CreditOfferRepositoryInterface $creditOfferRepository */
+        $creditOfferRepository = mock(CreditOfferRepositoryInterface::class);
+
+        $this->queueService = $queueService;
+        $this->creditOfferRepository = $creditOfferRepository;
 
         $this->service = new CreditOfferApplicationService(
-            queueService: $this->queueService,
-            creditOfferRepository: $this->creditOfferRepository
+            queueService: $queueService,
+            creditOfferRepository: $creditOfferRepository
         );
     });
 
@@ -202,7 +207,9 @@ describe('CreditOfferApplicationService', function () {
 
     it('is readonly service with immutable dependencies', function () {
         // Test that service is properly constructed and readonly
-        expect($this->service)->toBeInstanceOf(CreditOfferApplicationService::class);
+        /** @var CreditOfferApplicationService $service */
+        $service = $this->service;
+        expect($service)->toBeInstanceOf(CreditOfferApplicationService::class);
 
         // Verify the service can be called multiple times (stateless)
         $cpfValue = CpfHelper::valid('1');

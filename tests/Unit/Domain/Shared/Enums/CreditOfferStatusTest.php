@@ -30,26 +30,21 @@ describe('CreditOfferStatus', function () {
     });
 
     it('can be used in match expressions', function () {
-        // Test ACTIVE enum value
-        $result = match (CreditOfferStatus::ACTIVE) {
-            CreditOfferStatus::ACTIVE => 'active',
-            default => 'other',
-        };
-        expect($result)->toBe('active');
+        $statuses = [
+            CreditOfferStatus::ACTIVE,
+            CreditOfferStatus::INACTIVE,
+            CreditOfferStatus::ERROR,
+        ];
 
-        // Test INACTIVE enum value
-        $result = match (CreditOfferStatus::INACTIVE) {
-            CreditOfferStatus::INACTIVE => 'inactive',
-            default => 'other',
-        };
-        expect($result)->toBe('inactive');
+        foreach ($statuses as $status) {
+            $result = match ($status) {
+                CreditOfferStatus::ACTIVE => 'active',
+                CreditOfferStatus::INACTIVE => 'inactive',
+                CreditOfferStatus::ERROR => 'error',
+            };
 
-        // Test ERROR enum value
-        $result = match (CreditOfferStatus::ERROR) {
-            CreditOfferStatus::ERROR => 'error',
-            default => 'other',
-        };
-        expect($result)->toBe('error');
+            expect($result)->toBe($status->value);
+        }
     });
 
     it('can be compared with other enum values', function () {

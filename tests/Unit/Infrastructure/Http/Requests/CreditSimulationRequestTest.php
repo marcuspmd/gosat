@@ -6,11 +6,13 @@ use App\Infrastructure\Http\Requests\CreditSimulationRequest;
 
 describe('CreditSimulationRequest', function () {
     beforeEach(function () {
-        $this->request = new CreditSimulationRequest();
+        $this->request = new CreditSimulationRequest;
     });
 
     it('can be instantiated', function () {
-        expect($this->request)->toBeInstanceOf(CreditSimulationRequest::class);
+        /** @var CreditSimulationRequest $request */
+        $request = $this->request;
+        expect($request)->toBeInstanceOf(CreditSimulationRequest::class);
     });
 
     describe('authorize method', function () {

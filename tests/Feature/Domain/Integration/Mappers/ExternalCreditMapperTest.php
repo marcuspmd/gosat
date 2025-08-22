@@ -16,28 +16,33 @@ use App\Domain\Shared\Dtos\ExternalCreditModalityDto;
 use App\Domain\Shared\Dtos\ExternalCreditOfferDto;
 use App\Domain\Shared\ValueObjects\CPF;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
 describe('ExternalCreditMapper', function () {
 
     beforeEach(function () {
-        // Mock Log facade
-        Log::shouldReceive('info')->andReturn(true);
-        Log::shouldReceive('warning')->andReturn(true);
-        Log::shouldReceive('error')->andReturn(true);
+        // Note: Log facade will use the default logger configured in Laravel
 
-        $this->institutionRepository = \Mockery::mock(InstitutionRepositoryInterface::class);
-        $this->creditModalityRepository = \Mockery::mock(CreditModalityRepositoryInterface::class);
-        $this->creditOfferRepository = \Mockery::mock(CreditOfferRepositoryInterface::class);
-        $this->customerRepository = \Mockery::mock(CustomerRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&InstitutionRepositoryInterface $institutionRepository */
+        $institutionRepository = \Mockery::mock(InstitutionRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CreditModalityRepositoryInterface $creditModalityRepository */
+        $creditModalityRepository = \Mockery::mock(CreditModalityRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CreditOfferRepositoryInterface $creditOfferRepository */
+        $creditOfferRepository = \Mockery::mock(CreditOfferRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CustomerRepositoryInterface $customerRepository */
+        $customerRepository = \Mockery::mock(CustomerRepositoryInterface::class);
+
+        $this->institutionRepository = $institutionRepository;
+        $this->creditModalityRepository = $creditModalityRepository;
+        $this->creditOfferRepository = $creditOfferRepository;
+        $this->customerRepository = $customerRepository;
 
         $this->mapper = new ExternalCreditMapper(
-            $this->institutionRepository,
-            $this->creditModalityRepository,
-            $this->creditOfferRepository,
-            $this->customerRepository
+            $institutionRepository,
+            $creditModalityRepository,
+            $creditOfferRepository,
+            $customerRepository
         );
     });
 

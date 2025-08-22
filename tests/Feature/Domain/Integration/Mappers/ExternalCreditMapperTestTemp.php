@@ -16,9 +16,13 @@ uses(RefreshDatabase::class);
 
 describe('ExternalCreditMapper', function () {
     it('handles empty institutions array', function () {
+        /** @var \Mockery\MockInterface&InstitutionRepositoryInterface $institutionRepository */
         $institutionRepository = \Mockery::mock(InstitutionRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CreditModalityRepositoryInterface $creditModalityRepository */
         $creditModalityRepository = \Mockery::mock(CreditModalityRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CreditOfferRepositoryInterface $creditOfferRepository */
         $creditOfferRepository = \Mockery::mock(CreditOfferRepositoryInterface::class);
+        /** @var \Mockery\MockInterface&CustomerRepositoryInterface $customerRepository */
         $customerRepository = \Mockery::mock(CustomerRepositoryInterface::class);
 
         $mapper = new ExternalCreditMapper(

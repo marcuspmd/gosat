@@ -208,7 +208,7 @@ describe('CreditModalityEntity', function () {
             expect($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
                 ->and($params[0]->hasType())->toBeTrue()
-                ->and($params[0]->getType()->getName())->toBe('App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel')
+                ->and((string) $params[0]->getType())->toBe('?App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel')
                 ->and($params[0]->allowsNull())->toBeTrue()
                 ->and($params[0]->isDefaultValueAvailable())->toBeTrue()
                 ->and($params[0]->getDefaultValue())->toBeNull();

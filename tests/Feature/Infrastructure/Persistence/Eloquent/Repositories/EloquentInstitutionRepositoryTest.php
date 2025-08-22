@@ -186,8 +186,8 @@ class EloquentInstitutionRepositoryTest extends TestCase
 
         // Verify institution was created
         $savedModel = InstitutionModel::find('new-institution-id');
-        $this->assertNotNull($savedModel, 'Institution should have been saved to database');
-        /* @var InstitutionModel $savedModel */
+        $this->assertInstanceOf(InstitutionModel::class, $savedModel, 'Institution should have been saved to database');
+
         $this->assertEquals('New Bank', $savedModel->name);
         $this->assertEquals('new-bank', $savedModel->slug);
         $this->assertTrue($savedModel->is_active);

@@ -12,7 +12,6 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 
 uses(RefreshDatabase::class);
 
@@ -69,10 +68,7 @@ function createSampleOfferApiResponse(): array
 
 describe('ExternalCreditApiService', function () {
     beforeEach(function () {
-        Log::shouldReceive('info')->byDefault();
-        Log::shouldReceive('debug')->byDefault();
-        Log::shouldReceive('warning')->byDefault();
-        Log::shouldReceive('error')->byDefault();
+        // Note: Log facade will use the default logger configured in Laravel
     });
 
     it('can fetch credit data successfully', function () {

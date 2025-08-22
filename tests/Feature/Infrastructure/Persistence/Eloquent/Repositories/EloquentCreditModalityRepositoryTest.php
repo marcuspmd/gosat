@@ -16,7 +16,9 @@ beforeEach(function () {
 
 describe('EloquentCreditModalityRepository', function () {
     it('implements credit modality repository interface', function () {
-        expect($this->repository)->toBeInstanceOf(CreditModalityRepositoryInterface::class);
+        /** @var CreditModalityRepositoryInterface $repository */
+        $repository = $this->repository;
+        expect($repository)->toBeInstanceOf(CreditModalityRepositoryInterface::class);
     });
 
     it('has correct class structure', function () {

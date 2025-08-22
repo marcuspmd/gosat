@@ -82,7 +82,7 @@ describe('Customers With Offers API', function () {
         expect($customers)->toHaveCount(2);
 
         // Verificar se os CPFs estão presentes (sem ordem específica)
-        $cpfs = collect($customers)->pluck('cpf')->toArray();
+        $cpfs = array_map(fn ($customer) => $customer['cpf'], $customers);
         expect($cpfs)->toHaveCount(2);
         expect(in_array('12345678909', $cpfs))->toBeTrue();
         expect(in_array('98765432100', $cpfs))->toBeTrue();
@@ -114,7 +114,7 @@ describe('Customers With Offers API', function () {
         expect($customers)->toHaveCount(2); // Ambos customers têm ofertas válidas
 
         // Verificar que pelo menos um dos customers esperados está presente
-        $cpfs = collect($customers)->pluck('cpf')->toArray();
+        $cpfs = array_map(fn ($customer) => $customer['cpf'], $customers);
         expect(in_array('12345678909', $cpfs) || in_array('98765432100', $cpfs))->toBeTrue();
     });
 
@@ -229,8 +229,8 @@ describe('Customers With Offers API', function () {
         expect($customers)->toHaveCount(3);
 
         // Verificar ordenação (mais recente primeiro)
-        $dates = collect($customers)->pluck('last_request_date')->filter();
-        if ($dates->count() > 1) {
+        $dates = array_filter(array_map(fn ($customer) => $customer['last_request_date'] ?? null, $customers));
+        if (count($dates) > 1) {
             for ($i = 0; $i < count($dates) - 1; $i++) {
                 $current = \Carbon\Carbon::parse($dates[$i]);
                 $next = \Carbon\Carbon::parse($dates[$i + 1]);

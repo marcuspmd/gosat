@@ -136,7 +136,7 @@ pint-test:
 
 
 analyse:
-	$(MAKE) composer -- analyse
+	$(DOCKER_EXEC) composer analyse
 
 ## Atualiza autoload, limpa otimizações e reinicia workers
 optimize-reload:

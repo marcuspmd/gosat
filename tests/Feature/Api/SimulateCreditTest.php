@@ -273,7 +273,7 @@ describe('Simulate Credit API', function () {
         expect($offers)->toHaveCount(2);
 
         // Verificar se as duas instituições estão presentes
-        $institutionNames = collect($offers)->pluck('financial_institution')->toArray();
+        $institutionNames = array_map(fn ($offer) => $offer['financial_institution'], $offers);
         expect($institutionNames)->toContain('Banco A');
         expect($institutionNames)->toContain('Banco B');
     });
