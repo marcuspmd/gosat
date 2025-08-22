@@ -58,9 +58,7 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
     {
         DB::transaction(function () use ($offers) {
             foreach ($offers as $offer) {
-                if ($offer instanceof CreditOfferEntity) {
-                    $this->save($offer);
-                }
+                $this->save($offer);
             }
         });
     }

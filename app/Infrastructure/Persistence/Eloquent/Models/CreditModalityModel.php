@@ -10,8 +10,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @template TFactory of CreditModalityModelFactory
+ */
 class CreditModalityModel extends Model
 {
+    /** @use HasFactory<TFactory> */
     use HasFactory;
     use HasUuids;
 

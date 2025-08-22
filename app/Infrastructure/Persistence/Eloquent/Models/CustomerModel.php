@@ -9,8 +9,12 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @template TFactory of CustomerModelFactory
+ */
 class CustomerModel extends Model
 {
+    /** @use HasFactory<TFactory> */
     use HasFactory;
     use HasUuids;
 

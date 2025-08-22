@@ -15,7 +15,6 @@ final class SSEController extends Controller
 {
     private const CACHE_PREFIX = 'sse_events:';
     private const MAX_RETRY_TIME = 3000;
-    private const HEARTBEAT_INTERVAL = 30000;
 
     public function stream(Request $request): StreamedResponse
     {

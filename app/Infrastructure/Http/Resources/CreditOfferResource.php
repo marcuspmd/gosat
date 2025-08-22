@@ -50,16 +50,16 @@ class CreditOfferResource extends JsonResource
             ],
             'calculated_values' => [
                 'monthly_payment' => [
-                    'cents' => $this->resource->monthlyPayment?->amountInCents ?? 0,
-                    'formatted' => $this->resource->monthlyPayment?->formatted ?? 'R$ 0,00',
+                    'cents' => $this->resource->monthlyPayment->amountInCents ?? 0,
+                    'formatted' => $this->resource->monthlyPayment->formatted ?? 'R$ 0,00',
                 ],
                 'total_amount' => [
-                    'cents' => $this->resource->totalAmount?->amountInCents ?? 0,
-                    'formatted' => $this->resource->totalAmount?->formatted ?? 'R$ 0,00',
+                    'cents' => $this->resource->totalAmount->amountInCents ?? 0,
+                    'formatted' => $this->resource->totalAmount->formatted ?? 'R$ 0,00',
                 ],
                 'total_interest' => [
-                    'cents' => $this->resource->totalInterest?->amountInCents ?? 0,
-                    'formatted' => $this->resource->totalInterest?->formatted ?? 'R$ 0,00',
+                    'cents' => $this->resource->totalInterest->amountInCents ?? 0,
+                    'formatted' => $this->resource->totalInterest->formatted ?? 'R$ 0,00',
                 ],
                 'effective_rate' => method_exists($this->resource, 'calculateEffectiveRate') ? $this->resource->calculateEffectiveRate() : 0.0,
             ],

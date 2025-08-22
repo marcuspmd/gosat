@@ -29,7 +29,7 @@ ARGS ?= $(filter-out $@,$(MAKECMDGOALS))
 	@:
 
 
-.PHONY: help up down build dev-ready artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test npm assets-build assets-dev exec optimize-reload pint pint-test swagger-generate swagger-serve swagger-docs
+.PHONY: help up down build dev-ready artisan tinker migrate migrate-fresh migrate-rollbacks db-seed composer test npm assets-build assets-dev exec optimize-reload pint pint-test quality swagger-generate swagger-serve swagger-docs
 
 help:
 	@echo "Makefile targets:"
@@ -51,6 +51,7 @@ help:
 	@echo "  make assets-dev                       # inicia Vite dev server"
 	@echo "  make pint                            # corrige estilo do código com Laravel Pint"
 	@echo "  make pint-test                       # verifica estilo do código sem corrigir"
+	@echo "  make analyse                         # roda phpstan (via composer analyse)"
 	@echo "  make exec -- bash                     # abre um shell (ou comando) no container"
 	@echo "  make optimize-reload                   # atualiza autoload, limpa caches e reinicia workers"
 	@echo "  make swagger-generate                  # gera documentação OpenAPI/Swagger"
@@ -132,6 +133,10 @@ pint-test:
 	else \
 		$(DOCKER_EXEC) ./vendor/bin/pint --test; \
 	fi
+
+
+analyse:
+	$(MAKE) composer -- analyse
 
 ## Atualiza autoload, limpa otimizações e reinicia workers
 optimize-reload:

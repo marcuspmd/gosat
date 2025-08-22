@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Integration\UseCases;
 
 use App\Domain\Credit\Entities\CreditOfferEntity;
-use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
-use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
 use App\Domain\Integration\Contracts\ExternalCreditApiServiceInterface;
 use App\Domain\Integration\Contracts\ExternalCreditMapperInterface;
 use App\Domain\Shared\Dtos\ExternalCreditDto;
@@ -19,10 +17,9 @@ final readonly class FetchExternalCreditDataUseCase
     public function __construct(
         private ExternalCreditApiServiceInterface $apiService,
         private CreditOfferRepositoryInterface $creditOfferRepository,
-        private CreditModalityRepositoryInterface $creditModalityRepository,
-        private InstitutionRepositoryInterface $institutionRepository,
         private ExternalCreditMapperInterface $mapper
-    ) {}
+    ) {
+    }
 
     /**
      * @return CreditOfferEntity[]

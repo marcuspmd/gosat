@@ -11,8 +11,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @template TFactory of CreditOfferModelFactory
+ */
 class CreditOfferModel extends Model
 {
+    /** @use HasFactory<TFactory> */
     use HasFactory;
     use HasUuids;
     use SoftDeletes;

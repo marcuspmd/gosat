@@ -33,7 +33,7 @@ final class InstallmentCount
             }
 
             if ($this->value < 12) {
-                return $this->value . ' ' . ($this->value === 1 ? 'mês' : 'meses');
+                return $this->value . ' meses';
             }
 
             $years = $this->years;
