@@ -70,7 +70,7 @@ class FetchCreditOffersJob implements ShouldQueue
             } catch (\Throwable) {
                 $cpfForLog = '***';
             }
-            
+
             // Check if this is a final error that should not be retried
             if ($this->shouldFailImmediately($e)) {
                 Log::error('Erro final - não retentando', [
@@ -79,9 +79,10 @@ class FetchCreditOffersJob implements ShouldQueue
                     'attempt' => $this->attempts(),
                     'error_type' => 'final',
                 ]);
-                
+
                 // Fail immediately without retrying
                 $this->fail($e);
+
                 return;
             }
 
@@ -121,7 +122,7 @@ class FetchCreditOffersJob implements ShouldQueue
     }
 
     /**
-     * Converte erros técnicos em mensagens amigáveis para o usuário
+     * Converte erros técnicos em mensagens amigáveis para o usuário.
      */
     private function getErrorMessage(Throwable $exception): string
     {
@@ -133,23 +134,23 @@ class FetchCreditOffersJob implements ShouldQueue
             if (str_contains($message, 'CPF não encontrado')) {
                 return 'CPF não encontrado ou sem ofertas disponíveis.';
             }
-            
+
             if (str_contains($message, '422 Unprocessable Content')) {
                 return 'Dados informados são inválidos. Verifique o CPF e tente novamente.';
             }
-            
+
             if (str_contains($message, '404')) {
                 return 'Nenhuma oferta foi encontrada para este CPF.';
             }
-            
+
             if (str_contains($message, '500') || str_contains($message, 'Internal Server Error')) {
                 return 'O serviço está temporariamente indisponível. Tente novamente em alguns minutos.';
             }
-            
+
             if (str_contains($message, 'timeout') || str_contains($message, 'Connection timed out')) {
                 return 'A consulta demorou mais que o esperado. Tente novamente.';
             }
-            
+
             return 'Não foi possível consultar as ofertas de crédito no momento. Tente novamente.';
         }
 
@@ -173,12 +174,12 @@ class FetchCreditOffersJob implements ShouldQueue
     }
 
     /**
-     * Determina se o erro é final e não deve ser retentado
+     * Determina se o erro é final e não deve ser retentado.
      */
     private function shouldFailImmediately(Throwable $exception): bool
     {
         $message = $exception->getMessage();
-        
+
         // Erros HTTP finais que não devem ser retentados
         $finalHttpErrors = [
             '401', // Unauthorized - problema de autenticação
@@ -187,13 +188,13 @@ class FetchCreditOffersJob implements ShouldQueue
             '422', // Unprocessable Entity - dados inválidos
             '400', // Bad Request - requisição malformada
         ];
-        
+
         foreach ($finalHttpErrors as $httpCode) {
             if (str_contains($message, $httpCode)) {
                 return true;
             }
         }
-        
+
         // Erros específicos que são finais
         $finalErrors = [
             'CPF não encontrado',
@@ -206,13 +207,13 @@ class FetchCreditOffersJob implements ShouldQueue
             'Forbidden',
             'Access denied',
         ];
-        
+
         foreach ($finalErrors as $errorPattern) {
             if (str_contains($message, $errorPattern)) {
                 return true;
             }
         }
-        
+
         // Erros que devem ser retentados (problemas temporários)
         $retryableErrors = [
             'timeout',
@@ -221,18 +222,18 @@ class FetchCreditOffersJob implements ShouldQueue
             'Network is unreachable',
             '500', // Internal Server Error
             '502', // Bad Gateway
-            '503', // Service Unavailable  
+            '503', // Service Unavailable
             '504', // Gateway Timeout
             'cURL error',
             'Unable to connect',
         ];
-        
+
         foreach ($retryableErrors as $errorPattern) {
             if (str_contains($message, $errorPattern)) {
                 return false; // Deve ser retentado
             }
         }
-        
+
         // Por padrão, erros desconhecidos são considerados retentáveis
         // para evitar perder jobs por engano
         return false;
