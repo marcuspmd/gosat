@@ -94,8 +94,11 @@ describe('FetchCreditOffersJob', function () {
 
         $job = new FetchCreditOffersJob($cpfValue, $requestId);
 
-        // Test that the failed method exists
-        expect(method_exists($job, 'failed'))->toBeTrue();
+        // Test that the failed method can be called without error
+        $job->failed(new Exception('Test exception'));
+
+        // If we get here, the method exists and works
+        expect(true)->toBeTrue();
     });
 
     it('stores CPF and request ID as private properties', function () {
@@ -127,8 +130,8 @@ describe('FetchCreditOffersJob', function () {
 
         $job = new FetchCreditOffersJob($cpfValue, $requestId);
 
-        // Test that the job has dispatch capability
-        expect(method_exists($job, 'dispatch'))->toBeTrue();
+        // Test that the job can be dispatched (implements queue interface)
+        expect($job)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
     });
 
     it('maintains job state through serialization cycle', function () {
@@ -152,7 +155,7 @@ describe('FetchCreditOffersJob', function () {
         $job = new FetchCreditOffersJob($cpfValue, $requestId);
 
         // Verify it implements required interfaces for Laravel queues
-        expect($job instanceof \Illuminate\Contracts\Queue\ShouldQueue)->toBeTrue();
+        expect($job)->toBeInstanceOf(\Illuminate\Contracts\Queue\ShouldQueue::class);
     });
 
     it('can handle edge case parameters', function () {
@@ -171,10 +174,7 @@ describe('FetchCreditOffersJob', function () {
     it('maintains proper method signatures', function () {
         $job = new FetchCreditOffersJob(CpfHelper::valid('1'), 'test');
 
-        // Verify handle method exists and has correct signature
-        expect(method_exists($job, 'handle'))->toBeTrue();
-        expect(method_exists($job, 'failed'))->toBeTrue();
-
+        // Verify job structure using reflection
         $handleMethod = new \ReflectionMethod($job, 'handle');
         $failedMethod = new \ReflectionMethod($job, 'failed');
 

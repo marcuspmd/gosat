@@ -18,8 +18,7 @@ final readonly class FetchExternalCreditDataUseCase
         private ExternalCreditApiServiceInterface $apiService,
         private CreditOfferRepositoryInterface $creditOfferRepository,
         private ExternalCreditMapperInterface $mapper
-    ) {
-    }
+    ) {}
 
     /**
      * @return CreditOfferEntity[]

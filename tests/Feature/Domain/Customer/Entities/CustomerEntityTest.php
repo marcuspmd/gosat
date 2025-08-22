@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Domain\Customer\Entities\CustomerEntity;
 use App\Domain\Shared\ValueObjects\CPF;
 use App\Infrastructure\Persistence\Eloquent\Models\CustomerModel;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Helpers\CpfHelper;
 
@@ -18,8 +19,8 @@ describe('CustomerEntity Feature Tests', function () {
             $model->id = 'customer-456';
             $model->cpf = CpfHelper::valid('2');
             $model->is_active = false;
-            $model->created_at = new \DateTimeImmutable('2024-01-01 10:00:00');
-            $model->updated_at = new \DateTimeImmutable('2024-01-02 15:30:00');
+            $model->created_at = Carbon::parse('2024-01-01 10:00:00');
+            $model->updated_at = Carbon::parse('2024-01-02 15:30:00');
 
             $entity = CustomerEntity::fromModel($model);
 
@@ -57,7 +58,7 @@ describe('CustomerEntity Feature Tests', function () {
             );
 
             $providedModel = new CustomerModel;
-            $providedModel->existing_field = 'should_remain';
+            $providedModel->created_at = Carbon::now(); // Use existing field
 
             $result = $entity->toModel($providedModel);
 
@@ -80,8 +81,8 @@ describe('CustomerEntity Feature Tests', function () {
             $model->id = 'original-id'; // Should remain unchanged
             $model->cpf = CpfHelper::valid('1'); // Should be updated
             $model->is_active = true; // Should be updated
-            $model->created_at = new \DateTimeImmutable('2024-01-01');
-            $model->updated_at = new \DateTimeImmutable('2024-01-01'); // Should be updated
+            $model->created_at = Carbon::parse('2024-01-01');
+            $model->updated_at = Carbon::parse('2024-01-01'); // Should be updated
 
             // Execute updateModel
             $entity->updateModel($model);

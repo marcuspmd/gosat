@@ -12,11 +12,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * @template TFactory of CreditOfferModelFactory
+ * @method static CreditOfferModelFactory factory($count = null, $state = [])
+ * @method static CreditOfferModel create($attributes = [])
+ * @method static CreditOfferModel make($attributes = [])
  */
 class CreditOfferModel extends Model
 {
-    /** @use HasFactory<TFactory> */
+    /** @use HasFactory<CreditOfferModelFactory> */
     use HasFactory;
     use HasUuids;
     use SoftDeletes;

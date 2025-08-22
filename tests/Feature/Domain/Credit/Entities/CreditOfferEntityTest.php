@@ -14,6 +14,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\CreditModalityModel;
 use App\Infrastructure\Persistence\Eloquent\Models\CreditOfferModel;
 use App\Infrastructure\Persistence\Eloquent\Models\CustomerModel;
 use App\Infrastructure\Persistence\Eloquent\Models\InstitutionModel;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Helpers\CpfHelper;
 
@@ -69,7 +70,7 @@ describe('CreditOfferEntity Feature Tests', function () {
             $model->max_installments = 24;
             $model->request_id = 'old-request';
             $model->error_message = 'old error';
-            $model->updated_at = new \DateTimeImmutable('2024-01-01');
+            $model->updated_at = Carbon::parse('2024-01-01');
 
             // Execute the updateModel method
             $entity->updateModel($model);
@@ -125,24 +126,24 @@ describe('CreditOfferEntity Feature Tests', function () {
             $customerModel->id = 'customer-789';
             $customerModel->cpf = CpfHelper::valid('2');
             $customerModel->is_active = true;
-            $customerModel->created_at = new \DateTimeImmutable('2024-01-01');
-            $customerModel->updated_at = new \DateTimeImmutable('2024-01-01');
+            $customerModel->created_at = Carbon::parse('2024-01-01');
+            $customerModel->updated_at = Carbon::parse('2024-01-01');
 
             $institutionModel = new InstitutionModel;
             $institutionModel->id = 'institution-123';
             $institutionModel->name = 'Test Bank';
             $institutionModel->slug = 'test-bank';
             $institutionModel->is_active = true;
-            $institutionModel->created_at = new \DateTimeImmutable('2024-01-01');
-            $institutionModel->updated_at = new \DateTimeImmutable('2024-01-01');
+            $institutionModel->created_at = Carbon::parse('2024-01-01');
+            $institutionModel->updated_at = Carbon::parse('2024-01-01');
 
             $modalityModel = new CreditModalityModel;
             $modalityModel->id = 'modality-456';
             $modalityModel->standard_code = 'personal-credit';
             $modalityModel->name = 'Personal Credit';
             $modalityModel->is_active = true;
-            $modalityModel->created_at = new \DateTimeImmutable('2024-01-01');
-            $modalityModel->updated_at = new \DateTimeImmutable('2024-01-01');
+            $modalityModel->created_at = Carbon::parse('2024-01-01');
+            $modalityModel->updated_at = Carbon::parse('2024-01-01');
 
             $offerModel = new CreditOfferModel;
             $offerModel->id = 'offer-789';
@@ -156,8 +157,8 @@ describe('CreditOfferEntity Feature Tests', function () {
             $offerModel->max_installments = 60;
             $offerModel->request_id = 'req-test';
             $offerModel->error_message = 'Test error';
-            $offerModel->created_at = new \DateTimeImmutable('2024-01-01');
-            $offerModel->updated_at = new \DateTimeImmutable('2024-01-02');
+            $offerModel->created_at = Carbon::parse('2024-01-01');
+            $offerModel->updated_at = Carbon::parse('2024-01-02');
 
             // Set up relationships
             $offerModel->setRelation('customer', $customerModel);
@@ -235,7 +236,7 @@ describe('CreditOfferEntity Feature Tests', function () {
             );
 
             $providedModel = new CreditOfferModel;
-            $providedModel->some_existing_field = 'should_remain';
+            $providedModel->created_at = Carbon::now(); // Use existing field
 
             $result = $entity->toModel($providedModel);
 

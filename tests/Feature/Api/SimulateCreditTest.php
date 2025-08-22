@@ -20,7 +20,9 @@ describe('Simulate Credit API', function () {
     test('credit simulation with valid data and existing offers returns simulation result', function () {
         // Criar dados de teste
         $customer = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
+        /** @var InstitutionModel $institution */
         $institution = InstitutionModel::factory()->create(['name' => 'Banco Teste']);
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create(['name' => 'Crédito Pessoal']);
 
         CreditOfferModel::factory()
@@ -181,7 +183,9 @@ describe('Simulate Credit API', function () {
 
     test('credit simulation calculates correct monthly installment', function () {
         $customer = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
+        /** @var InstitutionModel $institution */
         $institution = InstitutionModel::factory()->create();
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create();
 
         CreditOfferModel::factory()
@@ -221,8 +225,11 @@ describe('Simulate Credit API', function () {
         $customer = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
 
         // Criar múltiplas ofertas que atendem aos critérios
+        /** @var InstitutionModel $institution1 */
         $institution1 = InstitutionModel::factory()->create(['name' => 'Banco A']);
+        /** @var InstitutionModel $institution2 */
         $institution2 = InstitutionModel::factory()->create(['name' => 'Banco B']);
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create();
 
         CreditOfferModel::factory()
@@ -286,11 +293,15 @@ describe('Simulate Credit API', function () {
 
     test('credit simulation sorts offers by lowest interest rate', function () {
         $customer = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create();
 
         // Criar ofertas com taxas diferentes
+        /** @var InstitutionModel $institution1 */
         $institution1 = InstitutionModel::factory()->create(['name' => 'Banco Alto']);
+        /** @var InstitutionModel $institution2 */
         $institution2 = InstitutionModel::factory()->create(['name' => 'Banco Baixo']);
+        /** @var InstitutionModel $institution3 */
         $institution3 = InstitutionModel::factory()->create(['name' => 'Banco Médio']);
 
         CreditOfferModel::factory()->forCustomer($customer)->create([

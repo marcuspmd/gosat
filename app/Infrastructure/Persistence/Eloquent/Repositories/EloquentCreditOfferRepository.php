@@ -52,13 +52,15 @@ final class EloquentCreditOfferRepository implements CreditOfferRepositoryInterf
     }
 
     /**
-     * @param  CreditOfferEntity[]  $offers
+     * @param  array<mixed>  $offers
      */
     public function saveAll(array $offers): void
     {
         DB::transaction(function () use ($offers) {
             foreach ($offers as $offer) {
-                $this->save($offer);
+                if ($offer instanceof CreditOfferEntity) {
+                    $this->save($offer);
+                }
             }
         });
     }

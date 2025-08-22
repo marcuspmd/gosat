@@ -14,8 +14,11 @@ describe('Get Credit Offers API', function () {
 
     test('get credit offers with valid CPF returns offers list', function () {
         // Criar dados de teste
+        /** @var CustomerModel $customer */
         $customer = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
+        /** @var InstitutionModel $institution */
         $institution = InstitutionModel::factory()->create();
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create();
 
         CreditOfferModel::factory()
@@ -129,6 +132,8 @@ describe('Get Credit Offers API', function () {
         $institution = InstitutionModel::factory()->withCode('BCO001')->create(['name' => 'Banco Teste']);
         $modality = CreditModalityModel::factory()->withCode('CP01')->create(['name' => 'Crédito Pessoal']);
 
+        /* @var InstitutionModel $institution */
+        /* @var CreditModalityModel $modality */
         CreditOfferModel::factory()
             ->forCustomer($customer)
             ->create([

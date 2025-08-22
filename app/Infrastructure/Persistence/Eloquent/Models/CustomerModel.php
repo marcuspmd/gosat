@@ -10,11 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * @template TFactory of CustomerModelFactory
+ * @method static CustomerModelFactory factory($count = null, $state = [])
+ * @method static CustomerModel create($attributes = [])
+ * @method static CustomerModel make($attributes = [])
  */
 class CustomerModel extends Model
 {
-    /** @use HasFactory<TFactory> */
+    /** @use HasFactory<CustomerModelFactory> */
     use HasFactory;
     use HasUuids;
 

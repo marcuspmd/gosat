@@ -3,9 +3,7 @@
 declare(strict_types=1);
 
 use App\Domain\Credit\Entities\CreditOfferEntity;
-use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
-use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
 use App\Domain\Integration\Contracts\ExternalCreditApiServiceInterface;
 use App\Domain\Integration\Contracts\ExternalCreditMapperInterface;
 use App\Domain\Integration\UseCases\FetchExternalCreditDataUseCase;
@@ -22,8 +20,6 @@ describe('FetchExternalCreditDataUseCase', function () {
     beforeEach(function () {
         $this->apiService = mock(ExternalCreditApiServiceInterface::class);
         $this->creditOfferRepository = mock(CreditOfferRepositoryInterface::class);
-        $this->creditModalityRepository = mock(CreditModalityRepositoryInterface::class);
-        $this->institutionRepository = mock(InstitutionRepositoryInterface::class);
         $this->mapper = mock(ExternalCreditMapperInterface::class);
 
         // Mock Log facade
@@ -32,8 +28,6 @@ describe('FetchExternalCreditDataUseCase', function () {
         $this->useCase = new FetchExternalCreditDataUseCase(
             $this->apiService,
             $this->creditOfferRepository,
-            $this->creditModalityRepository,
-            $this->institutionRepository,
             $this->mapper
         );
 
@@ -467,7 +461,6 @@ describe('FetchExternalCreditDataUseCase', function () {
                 ->once()
                 ->with(\Mockery::on(function ($dto) use ($cpf, $requestId) {
                     return $dto instanceof ExternalCreditDto &&
-                           $dto->cpf instanceof CPF &&
                            $dto->cpf->value === $cpf->value &&
                            $dto->creditRequestId === $requestId;
                 }))
@@ -496,7 +489,7 @@ describe('FetchExternalCreditDataUseCase', function () {
             $constructor = $reflection->getConstructor();
             $parameters = $constructor->getParameters();
 
-            expect($parameters)->toHaveCount(5);
+            expect($parameters)->toHaveCount(3);
 
             expect($parameters[0]->getName())->toBe('apiService')
                 ->and($parameters[0]->getType()?->getName())->toBe(ExternalCreditApiServiceInterface::class);
@@ -504,14 +497,8 @@ describe('FetchExternalCreditDataUseCase', function () {
             expect($parameters[1]->getName())->toBe('creditOfferRepository')
                 ->and($parameters[1]->getType()?->getName())->toBe(CreditOfferRepositoryInterface::class);
 
-            expect($parameters[2]->getName())->toBe('creditModalityRepository')
-                ->and($parameters[2]->getType()?->getName())->toBe(CreditModalityRepositoryInterface::class);
-
-            expect($parameters[3]->getName())->toBe('institutionRepository')
-                ->and($parameters[3]->getType()?->getName())->toBe(InstitutionRepositoryInterface::class);
-
-            expect($parameters[4]->getName())->toBe('mapper')
-                ->and($parameters[4]->getType()?->getName())->toBe(ExternalCreditMapperInterface::class);
+            expect($parameters[2]->getName())->toBe('mapper')
+                ->and($parameters[2]->getType()?->getName())->toBe(ExternalCreditMapperInterface::class);
         });
 
         it('has execute method with correct signature', function () {

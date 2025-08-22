@@ -14,11 +14,16 @@ describe('Customers With Offers API', function () {
 
     test('customers with offers returns list of customers that have valid offers', function () {
         // Criar customers com ofertas
+        /** @var CustomerModel $customer1 */
         $customer1 = CustomerModel::factory()->withSpecificCpf('12345678909')->create();
+        /** @var CustomerModel $customer2 */
         $customer2 = CustomerModel::factory()->withSpecificCpf('98765432100')->create();
+        /** @var CustomerModel $customer3 */
         $customer3 = CustomerModel::factory()->withSpecificCpf('11111111111')->create();
 
+        /** @var InstitutionModel $institution */
         $institution = InstitutionModel::factory()->create();
+        /** @var CreditModalityModel $modality */
         $modality = CreditModalityModel::factory()->create();
 
         // Customer 1 - com ofertas válidas

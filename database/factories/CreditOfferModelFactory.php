@@ -9,6 +9,7 @@ use App\Infrastructure\Persistence\Eloquent\Models\CreditOfferModel;
 use App\Infrastructure\Persistence\Eloquent\Models\CustomerModel;
 use App\Infrastructure\Persistence\Eloquent\Models\InstitutionModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 
 class CreditOfferModelFactory extends Factory
 {
@@ -43,7 +44,7 @@ class CreditOfferModelFactory extends Factory
         ]);
     }
 
-    public function forCustomer(CustomerModel $customer): static
+    public function forCustomer(CustomerModel|Model $customer): static
     {
         return $this->state(fn () => ['customer_id' => $customer->id]);
     }

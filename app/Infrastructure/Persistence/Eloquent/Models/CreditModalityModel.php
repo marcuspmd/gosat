@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @template TFactory of CreditModalityModelFactory
+ * @method static CreditModalityModelFactory factory($count = null, $state = [])
+ * @method static CreditModalityModel create($attributes = [])
+ * @method static CreditModalityModel make($attributes = [])
  */
 class CreditModalityModel extends Model
 {
-    /** @use HasFactory<TFactory> */
+    /** @use HasFactory<CreditModalityModelFactory> */
     use HasFactory;
     use HasUuids;
 

@@ -186,7 +186,8 @@ class EloquentInstitutionRepositoryTest extends TestCase
 
         // Verify institution was created
         $savedModel = InstitutionModel::find('new-institution-id');
-        $this->assertNotNull($savedModel);
+        $this->assertNotNull($savedModel, 'Institution should have been saved to database');
+        /* @var InstitutionModel $savedModel */
         $this->assertEquals('New Bank', $savedModel->name);
         $this->assertEquals('new-bank', $savedModel->slug);
         $this->assertTrue($savedModel->is_active);
@@ -282,8 +283,8 @@ class EloquentInstitutionRepositoryTest extends TestCase
         // This should not throw an exception
         $this->repository->delete('non-existent-institution');
 
-        // Test passes if no exception is thrown
-        $this->assertTrue(true);
+        // Verify no exception was thrown and operation completed
+        $this->addToAssertionCount(1);
     }
 
     public function test_can_save_and_retrieve_institution_in_sequence(): void

@@ -30,21 +30,35 @@ describe('CreditOfferStatus', function () {
     });
 
     it('can be used in match expressions', function () {
-        $status = CreditOfferStatus::ACTIVE;
-
-        $result = match ($status) {
+        // Test ACTIVE enum value
+        $result = match (CreditOfferStatus::ACTIVE) {
             CreditOfferStatus::ACTIVE => 'active',
-            CreditOfferStatus::INACTIVE => 'inactive',
-            CreditOfferStatus::ERROR => 'error',
+            default => 'other',
         };
-
         expect($result)->toBe('active');
+
+        // Test INACTIVE enum value
+        $result = match (CreditOfferStatus::INACTIVE) {
+            CreditOfferStatus::INACTIVE => 'inactive',
+            default => 'other',
+        };
+        expect($result)->toBe('inactive');
+
+        // Test ERROR enum value
+        $result = match (CreditOfferStatus::ERROR) {
+            CreditOfferStatus::ERROR => 'error',
+            default => 'other',
+        };
+        expect($result)->toBe('error');
     });
 
     it('can be compared with other enum values', function () {
-        expect(CreditOfferStatus::ACTIVE === CreditOfferStatus::ACTIVE)->toBeTrue()
-            ->and(CreditOfferStatus::ACTIVE === CreditOfferStatus::INACTIVE)->toBeFalse()
-            ->and(CreditOfferStatus::ACTIVE !== CreditOfferStatus::ERROR)->toBeTrue();
+        $activeStatus = CreditOfferStatus::ACTIVE;
+        $inactiveStatus = CreditOfferStatus::INACTIVE;
+
+        expect($activeStatus)->toBe(CreditOfferStatus::ACTIVE)
+            ->and($activeStatus)->not->toBe($inactiveStatus)
+            ->and($inactiveStatus)->toBe(CreditOfferStatus::INACTIVE);
     });
 
     it('can get all enum cases', function () {

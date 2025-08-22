@@ -63,7 +63,7 @@ describe('findById', function () {
         expect($result)->toBeInstanceOf(CreditModalityEntity::class);
 
         // Test that search is case sensitive (as expected)
-        $result = $this->repository->findById(strtoupper($modality->id));
+        $result = $this->repository->findById(strtoupper((string) $modality->id));
         expect($result)->toBeNull();
     });
 
@@ -163,7 +163,7 @@ describe('save', function () {
         ]);
 
         $updatedEntity = new CreditModalityEntity(
-            id: $originalModel->id,
+            id: (string) $originalModel->id,
             standardCode: 'business-credit',
             name: 'Business Credit',
             isActive: false

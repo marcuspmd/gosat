@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * @template TFactory of InstitutionModelFactory
+ * @method static InstitutionModelFactory factory($count = null, $state = [])
+ * @method static InstitutionModel create($attributes = [])
+ * @method static InstitutionModel make($attributes = [])
  */
 class InstitutionModel extends Model
 {
-    /** @use HasFactory<TFactory> */
+    /** @use HasFactory<InstitutionModelFactory> */
     use HasFactory;
     use HasUuids;
 
