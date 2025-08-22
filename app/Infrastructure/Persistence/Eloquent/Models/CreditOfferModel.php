@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CreditOfferModel extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids;
+    use SoftDeletes;
 
     protected $table = 'credit_offers';
 
     protected $fillable = [
+        'id',
         'customer_id',
         'institution_id',
         'modality_id',

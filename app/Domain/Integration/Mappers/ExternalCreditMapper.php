@@ -12,6 +12,7 @@ use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
 use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
 use App\Domain\Customer\Entities\CustomerEntity;
 use App\Domain\Customer\Repositories\CustomerRepositoryInterface;
+use App\Domain\Integration\Contracts\ExternalCreditMapperInterface;
 use App\Domain\Shared\Dtos\ExternalCreditDto;
 use App\Domain\Shared\Dtos\ExternalCreditInstitutionDto;
 use App\Domain\Shared\Dtos\ExternalCreditModalityDto;
@@ -23,7 +24,7 @@ use App\Domain\Shared\ValueObjects\Money;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-final class ExternalCreditMapper
+final class ExternalCreditMapper implements ExternalCreditMapperInterface
 {
     public function __construct(
         private InstitutionRepositoryInterface $institutionRepository,

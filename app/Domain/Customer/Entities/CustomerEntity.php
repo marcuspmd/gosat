@@ -32,9 +32,9 @@ final class CustomerEntity
         );
     }
 
-    public function toModel(): CustomerModel
+    public function toModel(?CustomerModel $model = null): CustomerModel
     {
-        $model = new CustomerModel;
+        $model = $model ?? new CustomerModel;
         $model->id = $this->id;
         $model->cpf = $this->cpf->value;
         $model->is_active = $this->isActive;

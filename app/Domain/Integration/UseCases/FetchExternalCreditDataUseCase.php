@@ -8,8 +8,8 @@ use App\Domain\Credit\Entities\CreditOfferEntity;
 use App\Domain\Credit\Repositories\CreditModalityRepositoryInterface;
 use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
 use App\Domain\Credit\Repositories\InstitutionRepositoryInterface;
-use App\Domain\Integration\Mappers\ExternalCreditMapper;
-use App\Domain\Integration\Services\ExternalCreditApiService;
+use App\Domain\Integration\Contracts\ExternalCreditApiServiceInterface;
+use App\Domain\Integration\Contracts\ExternalCreditMapperInterface;
 use App\Domain\Shared\Dtos\ExternalCreditDto;
 use App\Domain\Shared\ValueObjects\CPF;
 use Illuminate\Support\Facades\Log;
@@ -17,11 +17,11 @@ use Illuminate\Support\Facades\Log;
 final readonly class FetchExternalCreditDataUseCase
 {
     public function __construct(
-        private ExternalCreditApiService $apiService,
+        private ExternalCreditApiServiceInterface $apiService,
         private CreditOfferRepositoryInterface $creditOfferRepository,
         private CreditModalityRepositoryInterface $creditModalityRepository,
         private InstitutionRepositoryInterface $institutionRepository,
-        private ExternalCreditMapper $mapper
+        private ExternalCreditMapperInterface $mapper
     ) {}
 
     /**
@@ -56,7 +56,7 @@ final readonly class FetchExternalCreditDataUseCase
                 'cpf' => $cpf->value,
                 'creditRequestId' => $creditRequestId,
                 'error' => $e->getMessage(),
-                'trace' => $e->getTrace(10),
+                'trace' => $e->getTraceAsString(),
             ]);
             throw $e;
         }

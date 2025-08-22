@@ -77,9 +77,9 @@ final class InstitutionEntity
         );
     }
 
-    public function toModel(): InstitutionModel
+    public function toModel(?InstitutionModel $model = null): InstitutionModel
     {
-        $model = new InstitutionModel;
+        $model = $model ?? new InstitutionModel;
         $model->id = $this->id;
         $model->name = $this->name;
         $model->slug = $this->slug;

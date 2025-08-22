@@ -15,9 +15,9 @@ class CreditModalityModel extends Model
     protected $table = 'credit_modalities';
 
     protected $fillable = [
+        'id',
         'standard_code',
         'name',
-        'description',
         'is_active',
     ];
 

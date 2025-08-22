@@ -26,7 +26,7 @@ class CreditOfferResource extends JsonResource
             'modality' => [
                 'id' => $this->resource->modality->id,
                 'name' => $this->resource->modality->name,
-                'standard_code' => $this->resource->modality->standardCode->value,
+                'standard_code' => $this->resource->modality->standardCode,
             ],
             'amounts' => [
                 'min' => [
@@ -61,13 +61,13 @@ class CreditOfferResource extends JsonResource
                     'cents' => $this->resource->totalInterest?->amountInCents ?? 0,
                     'formatted' => $this->resource->totalInterest?->formatted ?? 'R$ 0,00',
                 ],
-                'effective_rate' => method_exists($this->resource, 'calculateEffectiveRate') ? $this->resource->calculateEffectiveRate() : 0,
+                'effective_rate' => method_exists($this->resource, 'calculateEffectiveRate') ? $this->resource->calculateEffectiveRate() : 0.0,
             ],
             'status' => $this->resource->status->value,
             'status_label' => $this->resource->status->label(),
             'error_message' => $this->resource->errorMessage,
-            'created_at' => $this->resource->createdAt?->toISOString(),
-            'updated_at' => $this->resource->updatedAt?->toISOString(),
+            'created_at' => $this->resource->createdAt?->format('c'),
+            'updated_at' => $this->resource->updatedAt?->format('c'),
         ];
     }
 }

@@ -15,6 +15,7 @@ class InstitutionModel extends Model
     protected $table = 'institutions';
 
     protected $fillable = [
+        'id',
         'name',
         'slug',
         'is_active',

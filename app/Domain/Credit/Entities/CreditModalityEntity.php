@@ -55,9 +55,9 @@ final class CreditModalityEntity
         );
     }
 
-    public function toModel(): CreditModalityModel
+    public function toModel(?CreditModalityModel $model = null): CreditModalityModel
     {
-        $model = new CreditModalityModel;
+        $model = $model ?? new CreditModalityModel;
         $model->id = $this->id;
         $model->standard_code = $this->standardCode;
         $model->name = $this->name;

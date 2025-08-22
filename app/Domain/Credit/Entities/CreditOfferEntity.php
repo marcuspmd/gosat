@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Credit\Entities;
 
 use App\Domain\Customer\Entities\CustomerEntity;
+use App\Domain\Shared\Enums\CreditOfferStatus;
 use App\Domain\Shared\ValueObjects\InstallmentCount;
 use App\Domain\Shared\ValueObjects\InterestRate;
 use App\Domain\Shared\ValueObjects\Money;
@@ -23,13 +24,14 @@ final class CreditOfferEntity
         public InterestRate $monthlyInterestRate,
         public InstallmentCount $minInstallments,
         public InstallmentCount $maxInstallments,
+        public CreditOfferStatus $status = CreditOfferStatus::ACTIVE,
         public ?string $requestId = null,
         public ?string $errorMessage = null,
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
-        $this->createdAt ??= new DateTimeImmutable;
-        $this->updatedAt ??= new DateTimeImmutable;
+        $this->createdAt ??= new DateTimeImmutable();
+        $this->updatedAt ??= new DateTimeImmutable();
 
     }
 
@@ -68,7 +70,7 @@ final class CreditOfferEntity
             modality: CreditModalityEntity::fromModel($model->modality),
             minAmount: Money::fromCents($model->min_amount_cents),
             maxAmount: Money::fromCents($model->max_amount_cents),
-            monthlyInterestRate: new InterestRate($model->monthly_interest_rate ?? 0.0),
+            monthlyInterestRate: new InterestRate((float) ($model->monthly_interest_rate ?? 0.0)),
             minInstallments: new InstallmentCount($model->min_installments),
             maxInstallments: new InstallmentCount($model->max_installments),
             requestId: $model->request_id,
@@ -78,9 +80,9 @@ final class CreditOfferEntity
         );
     }
 
-    public function toModel(): CreditOfferModel
+    public function toModel(?CreditOfferModel $model = null): CreditOfferModel
     {
-        $model = new CreditOfferModel;
+        $model = $model ?? new CreditOfferModel();
         $model->id = $this->id;
         $model->customer_id = $this->customer->id;
         $model->institution_id = $this->institution->id;

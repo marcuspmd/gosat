@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Integration\Services;
 
+use App\Domain\Integration\Contracts\ExternalCreditApiServiceInterface;
 use App\Domain\Shared\Dtos\ExternalCreditDto;
 use App\Domain\Shared\Dtos\ExternalCreditInstitutionDto;
 use App\Domain\Shared\Dtos\ExternalCreditModalityDto;
@@ -17,7 +18,7 @@ use InvalidArgumentException;
 use RuntimeException;
 use Throwable;
 
-final readonly class ExternalCreditApiService
+final readonly class ExternalCreditApiService implements ExternalCreditApiServiceInterface
 {
     private const API_BASE_URL = 'https://dev.gosat.org/api/v1';
     private const TIMEOUT_SECONDS = 10;
@@ -80,7 +81,7 @@ final readonly class ExternalCreditApiService
             'institutions_received' => count($result['instituicoes'] ?? []),
         ]);
 
-        // Collect all offer requests as promises
+        // Collect all offer requests as promises and track institutions
         foreach ($result['instituicoes'] as $institutionIndex => $institution) {
             $modalities = $institution['modalidades'] ?? [];
             Log::info('Processando instituição', [
@@ -88,6 +89,14 @@ final readonly class ExternalCreditApiService
                 'institution_name' => $institution['nome'] ?? 'N/A',
                 'modalities_count' => count($modalities),
             ]);
+
+            // Always track the institution, even if it has no modalities
+            if (! isset($institutionModalityMap["institution_{$institutionIndex}"])) {
+                $institutionModalityMap["institution_{$institutionIndex}"] = [
+                    'institution' => $institution,
+                    'institutionIndex' => $institutionIndex,
+                ];
+            }
 
             foreach ($modalities as $modalityIndex => $modalityItem) {
                 $cpf = $data->cpf;
@@ -179,6 +188,9 @@ final readonly class ExternalCreditApiService
             'institution_data_count' => count($institutionData),
         ]);
 
+        // Track which institutions we've processed
+        $processedInstitutions = [];
+
         foreach ($institutionData as $instIndex => $instData) {
             $institution = $instData['institution'];
             $name = $institution['nome'] ?? '';
@@ -198,6 +210,36 @@ final readonly class ExternalCreditApiService
             ]);
 
             $data->institutions[] = $institutionDto;
+            $processedInstitutions[$instIndex] = true;
+        }
+
+        // Handle institutions without modalities
+        foreach ($institutionModalityMap as $key => $map) {
+            if (str_starts_with($key, 'institution_') && ! isset($map['modality'])) {
+                $institutionIndex = $map['institutionIndex'];
+
+                if (! isset($processedInstitutions[$institutionIndex])) {
+                    $institution = $map['institution'];
+                    $name = $institution['nome'] ?? '';
+
+                    $institutionDto = new ExternalCreditInstitutionDto(
+                        id: (string) ($institution['id'] ?? ''),
+                        name: $name,
+                        slug: Str::slug($name),
+                        modalities: [] // Empty modalities array
+                    );
+
+                    Log::info('DTO de instituição sem modalidades criado', [
+                        'institution_index' => $institutionIndex,
+                        'institution_id' => $institutionDto->id,
+                        'institution_name' => $institutionDto->name,
+                        'modalities_count' => 0,
+                    ]);
+
+                    $data->institutions[] = $institutionDto;
+                    $processedInstitutions[$institutionIndex] = true;
+                }
+            }
         }
 
         Log::info('Finalização da população de dados', [

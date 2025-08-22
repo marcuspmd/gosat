@@ -128,4 +128,85 @@ describe('CreditCalculatorService', function () {
             $installments
         ))->toThrow(InvalidArgumentException::class);
     });
+
+    test('calculates effective rate correctly with zero principal', function () {
+        $principal = new Money(0); // Zero principal to test line 74
+        $rate = InterestRate::fromPercentage(2.0);
+        $installments = new InstallmentCount(12);
+
+        $effectiveRate = $this->calculator->calculateEffectiveRate($principal, $rate, $installments);
+
+        expect($effectiveRate)->toBe(0.0);
+    });
+
+    test('calculates max affordable amount for single installment', function () {
+        $monthlyIncome = new Money(5000);
+        $debtRatio = 0.30; // 30% da renda
+        $rate = InterestRate::fromPercentage(2.0);
+        $installments = new InstallmentCount(1); // Single installment to test line 132
+
+        $maxAmount = $this->calculator->calculateMaxAffordableAmount(
+            $monthlyIncome,
+            $debtRatio,
+            $rate,
+            $installments
+        );
+
+        // For single installment, max amount should be 30% of monthly income
+        expect($maxAmount->value)->toBe(1500.0);
+    });
+
+    describe('compareOffers', function () {
+
+        test('returns empty array when input is empty', function () {
+            $result = $this->calculator->compareOffers([]);
+
+            expect($result)->toBe([]);
+        });
+
+        test('sorts offers by effective rate ascending', function () {
+            $calculations = [
+                ['name' => 'Offer A', 'effective_rate' => 0.25],
+                ['name' => 'Offer B', 'effective_rate' => 0.15],
+                ['name' => 'Offer C', 'effective_rate' => 0.30],
+            ];
+
+            $result = $this->calculator->compareOffers($calculations);
+
+            expect($result)->toHaveCount(3)
+                ->and($result[0]['name'])->toBe('Offer B') // Lowest rate first
+                ->and($result[0]['effective_rate'])->toBe(0.15)
+                ->and($result[1]['name'])->toBe('Offer A')
+                ->and($result[1]['effective_rate'])->toBe(0.25)
+                ->and($result[2]['name'])->toBe('Offer C') // Highest rate last
+                ->and($result[2]['effective_rate'])->toBe(0.30);
+        });
+
+        test('handles single offer correctly', function () {
+            $calculations = [
+                ['name' => 'Single Offer', 'effective_rate' => 0.20],
+            ];
+
+            $result = $this->calculator->compareOffers($calculations);
+
+            expect($result)->toHaveCount(1)
+                ->and($result[0]['name'])->toBe('Single Offer')
+                ->and($result[0]['effective_rate'])->toBe(0.20);
+        });
+
+        test('handles offers with same effective rate', function () {
+            $calculations = [
+                ['name' => 'Offer A', 'effective_rate' => 0.20],
+                ['name' => 'Offer B', 'effective_rate' => 0.20],
+                ['name' => 'Offer C', 'effective_rate' => 0.15],
+            ];
+
+            $result = $this->calculator->compareOffers($calculations);
+
+            expect($result)->toHaveCount(3)
+                ->and($result[0]['effective_rate'])->toBe(0.15) // Lowest first
+                ->and($result[1]['effective_rate'])->toBe(0.20)
+                ->and($result[2]['effective_rate'])->toBe(0.20);
+        });
+    });
 });
