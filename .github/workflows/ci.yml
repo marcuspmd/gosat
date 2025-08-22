@@ -15,7 +15,7 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: gosat_test
+          POSTGRES_DB: gosat
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -64,14 +64,9 @@ jobs:
     - name: Create .env file
       run: |
         cp .env.example .env
-        echo "DB_CONNECTION=pgsql" >> .env
-        echo "DB_HOST=localhost" >> .env
-        echo "DB_PORT=5432" >> .env
-        echo "DB_DATABASE=gosat_test" >> .env
-        echo "DB_USERNAME=postgres" >> .env
-        echo "DB_PASSWORD=postgres" >> .env
-        echo "REDIS_HOST=localhost" >> .env
-        echo "REDIS_PORT=6379" >> .env
+        sed -i 's/DB_HOST=postgres/DB_HOST=localhost/' .env
+        sed -i 's/DB_DATABASE=gosat/DB_DATABASE=gosat/' .env
+        sed -i 's/REDIS_HOST=127.0.0.1/REDIS_HOST=localhost/' .env
 
     - name: Generate application key
       run: php artisan key:generate
@@ -135,6 +130,10 @@ jobs:
     - name: Build Node Docker image
       run: docker compose build node
 
+    - name: Setup environment for Docker
+      run: |
+        cp .env.example .env
+
     - name: Test containers startup
       run: |
         docker compose up -d postgres redis
@@ -142,6 +141,11 @@ jobs:
         docker compose up -d app node
         sleep 15
         docker compose ps
+
+    - name: Install dependencies in containers
+      run: |
+        docker compose exec -T app composer install --no-progress --prefer-dist --optimize-autoloader
+        docker compose exec -T node npm ci
 
     - name: Test application health
       run: |
@@ -167,6 +171,11 @@ jobs:
         cp .env.example .env
         docker compose up -d
         sleep 30
+
+    - name: Install dependencies in containers
+      run: |
+        docker compose exec -T app composer install --no-progress --prefer-dist --optimize-autoloader
+        docker compose exec -T node npm ci
 
     - name: Run migrations in container
       run: docker compose exec -T app php artisan migrate --force
