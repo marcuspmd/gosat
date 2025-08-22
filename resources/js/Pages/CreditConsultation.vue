@@ -236,10 +236,19 @@ const simularOferta = async (formData) => {
 
     } catch (err) {
         console.error('Erro na simulação:', err)
+        
+        // Tratamento mais específico de erros
         if (err.response?.status === 404) {
             searchError.value = 'Nenhuma oferta encontrada para os dados solicitados.'
+        } else if (err.response?.status === 422) {
+            searchError.value = 'Dados informados são inválidos. Verifique os valores e tente novamente.'
+        } else if (err.response?.status === 400) {
+            searchError.value = 'Parâmetros inválidos. Verifique os dados informados.'
+        } else if (err.response?.data?.message) {
+            // Use a mensagem específica do backend se disponível
+            searchError.value = err.response.data.message
         } else {
-            searchError.value = err.response?.data?.message || 'Erro ao simular oferta'
+            searchError.value = 'Erro ao simular oferta. Tente novamente.'
         }
     } finally {
         simulationLoading.value = false
@@ -255,6 +264,15 @@ const handleCreditConsultationCompleted = (event) => {
 
 const handleCreditConsultationFailed = (event) => {
     console.log('Credit consultation failed:', event.detail)
+    
+    // Show user-friendly error message
+    const errorData = event.detail
+    if (errorData && errorData.error) {
+        searchError.value = errorData.error
+    } else {
+        searchError.value = 'Erro ao buscar ofertas de crédito. Tente novamente.'
+    }
+    
     // Still reload customers in case there were partial results
     loadCustomersWithOffers()
 }

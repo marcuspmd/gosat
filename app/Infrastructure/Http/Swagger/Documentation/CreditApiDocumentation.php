@@ -32,6 +32,10 @@ use OpenApi\Attributes as OA;
     description: 'Operações relacionadas às ofertas de crédito'
 )]
 #[OA\Tag(
+    name: 'Server-Sent Events',
+    description: 'Endpoints para notificações em tempo real via SSE'
+)]
+#[OA\Tag(
     name: 'System',
     description: 'Operações de sistema e monitoramento'
 )]

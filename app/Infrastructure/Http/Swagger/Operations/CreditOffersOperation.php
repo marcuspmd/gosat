@@ -7,7 +7,7 @@ namespace App\Infrastructure\Http\Swagger\Operations;
 use OpenApi\Attributes as OA;
 
 #[OA\Get(
-    path: '/v1/credit/offers',
+    path: '/v1/credit',
     operationId: 'getCreditOffers',
     summary: 'Listar ofertas de crédito',
     description: 'Retorna a lista das melhores ofertas de crédito disponíveis para um CPF específico.',

@@ -7,7 +7,7 @@ namespace App\Infrastructure\Http\Swagger\Operations;
 use OpenApi\Attributes as OA;
 
 #[OA\Post(
-    path: '/v1/credit/search',
+    path: '/v1/credit',
     operationId: 'searchCreditOffers',
     summary: 'Iniciar nova consulta de crédito',
     description: 'Inicia uma consulta assíncrona de ofertas de crédito em múltiplas instituições financeiras para o CPF fornecido.',
