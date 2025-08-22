@@ -261,10 +261,10 @@ describe('InstitutionEntity', function () {
                 institutionId: 1,
                 name: 'Test Institution'
             );
-            
+
             $reflection = new \ReflectionMethod($entity, 'toModel');
             $params = $reflection->getParameters();
-            
+
             expect($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
                 ->and($params[0]->hasType())->toBeTrue()

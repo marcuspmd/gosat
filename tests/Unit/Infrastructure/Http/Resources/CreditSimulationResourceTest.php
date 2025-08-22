@@ -22,7 +22,7 @@ describe('CreditSimulationResource', function () {
                 'total_amount' => 115000,
                 'monthly_payment' => 9500,
                 'monthly_interest_rate' => 2.0,
-            ]
+            ],
         ];
 
         $this->simulationDTO = new CreditSimulationResponseDTO(
@@ -43,7 +43,7 @@ describe('CreditSimulationResource', function () {
 
     it('converts DTO to array with correct structure', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -58,13 +58,13 @@ describe('CreditSimulationResource', function () {
                 'message',
                 'best_offer',
                 'generated_at',
-                'links'
+                'links',
             ]);
     });
 
     it('includes correct basic information', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -76,7 +76,7 @@ describe('CreditSimulationResource', function () {
 
     it('formats requested amount correctly', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -87,7 +87,7 @@ describe('CreditSimulationResource', function () {
 
     it('includes simulations data', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -99,7 +99,7 @@ describe('CreditSimulationResource', function () {
 
     it('calculates total simulations correctly', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -108,7 +108,7 @@ describe('CreditSimulationResource', function () {
 
     it('includes best offer from DTO method', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -120,7 +120,7 @@ describe('CreditSimulationResource', function () {
         $beforeTime = time();
 
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $array = $resource->toArray(new Request());
+        $array = $resource->toArray(new Request);
 
         $afterTime = time();
         $timestamp = strtotime($array['generated_at']);
@@ -133,7 +133,7 @@ describe('CreditSimulationResource', function () {
 
     it('includes navigation links', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -152,7 +152,7 @@ describe('CreditSimulationResource', function () {
         );
 
         $resource = new CreditSimulationResource($emptySimulationDTO);
-        $array = $resource->toArray(new Request());
+        $array = $resource->toArray(new Request);
 
         expect($array['simulations'])->toBeArray()
             ->and($array['simulations'])->toHaveCount(0)
@@ -172,7 +172,7 @@ describe('CreditSimulationResource', function () {
         );
 
         $resource = new CreditSimulationResource($dtoWithNullMessage);
-        $array = $resource->toArray(new Request());
+        $array = $resource->toArray(new Request);
 
         expect($array['message'])->toBeNull();
     });
@@ -190,7 +190,7 @@ describe('CreditSimulationResource', function () {
             );
 
             $resource = new CreditSimulationResource($dto);
-            $array = $resource->toArray(new Request());
+            $array = $resource->toArray(new Request);
 
             expect($array['requested_amount']['value'])->toBe((float) $amount)
                 ->and($array['requested_amount']['formatted'])->toContain('R$')
@@ -211,7 +211,7 @@ describe('CreditSimulationResource', function () {
             );
 
             $resource = new CreditSimulationResource($dto);
-            $array = $resource->toArray(new Request());
+            $array = $resource->toArray(new Request);
 
             expect($array['requested_installments'])->toBe($installmentCount);
         }
@@ -231,7 +231,7 @@ describe('CreditSimulationResource', function () {
             );
 
             $resource = new CreditSimulationResource($dto);
-            $array = $resource->toArray(new Request());
+            $array = $resource->toArray(new Request);
 
             expect($array['status'])->toBe($status)
                 ->and($array['message'])->toBe("Status is {$status}");
@@ -240,7 +240,7 @@ describe('CreditSimulationResource', function () {
 
     it('maintains data integrity through resource conversion', function () {
         $resource = new CreditSimulationResource($this->simulationDTO);
-        $array = $resource->toArray(new Request());
+        $array = $resource->toArray(new Request);
 
         expect($array['cpf'])->toBe($this->simulationDTO->cpf)
             ->and($array['requested_amount']['value'])->toBe($this->simulationDTO->requestedAmount)

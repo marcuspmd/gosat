@@ -201,10 +201,10 @@ describe('CreditModalityEntity', function () {
                 standardCode: 'credito-pessoal',
                 name: 'Crédito Pessoal'
             );
-            
+
             $reflection = new \ReflectionMethod($entity, 'toModel');
             $params = $reflection->getParameters();
-            
+
             expect($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
                 ->and($params[0]->hasType())->toBeTrue()

@@ -6,7 +6,7 @@ use App\Infrastructure\Http\Requests\CreditSimulationRequest;
 
 describe('CreditSimulationRequest', function () {
     beforeEach(function () {
-        $this->request = new CreditSimulationRequest();
+        $this->request = new CreditSimulationRequest;
     });
 
     it('can be instantiated', function () {

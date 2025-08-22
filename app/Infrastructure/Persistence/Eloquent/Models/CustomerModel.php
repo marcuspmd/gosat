@@ -4,14 +4,25 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\Eloquent\Models;
 
+use Database\Factories\CustomerModelFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CustomerModel extends Model
 {
+    use HasFactory;
     use HasUuids;
 
     protected $table = 'customers';
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): CustomerModelFactory
+    {
+        return CustomerModelFactory::new();
+    }
 
     protected $fillable = [
         'id',

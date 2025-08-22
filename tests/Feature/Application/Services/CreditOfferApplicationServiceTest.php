@@ -8,8 +8,6 @@ use App\Domain\Credit\Repositories\CreditOfferRepositoryInterface;
 use App\Domain\Shared\ValueObjects\CPF;
 use App\Infrastructure\Queue\Jobs\FetchCreditOffersJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Tests\Helpers\CpfHelper;
 
 uses(RefreshDatabase::class);

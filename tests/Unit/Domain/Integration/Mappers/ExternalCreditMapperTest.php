@@ -27,7 +27,7 @@ describe('ExternalCreditMapper', function () {
         Log::shouldReceive('info')->andReturn(true);
         Log::shouldReceive('warning')->andReturn(true);
         Log::shouldReceive('error')->andReturn(true);
-        
+
         $this->institutionRepository = \Mockery::mock(InstitutionRepositoryInterface::class);
         $this->creditModalityRepository = \Mockery::mock(CreditModalityRepositoryInterface::class);
         $this->creditOfferRepository = \Mockery::mock(CreditOfferRepositoryInterface::class);
@@ -93,9 +93,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -143,9 +143,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -194,9 +194,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -242,9 +242,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -275,9 +275,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -308,9 +308,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 0 // Invalid
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -341,9 +341,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 0, // Invalid
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -374,9 +374,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -426,7 +426,7 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 12,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
                     ),
                     new ExternalCreditInstitutionDto(
@@ -456,9 +456,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 36,
                                     maxInstallments: 180
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 
@@ -531,9 +531,9 @@ describe('ExternalCreditMapper', function () {
                                     minInstallments: 0,
                                     maxInstallments: 60
                                 )
-                            )
+                            ),
                         ]
-                    )
+                    ),
                 ]
             );
 

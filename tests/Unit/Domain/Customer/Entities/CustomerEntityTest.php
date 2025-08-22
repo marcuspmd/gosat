@@ -154,10 +154,10 @@ describe('CustomerEntity', function () {
                 id: 'test',
                 cpf: new CPF(CpfHelper::valid('1'))
             );
-            
+
             $reflection = new \ReflectionMethod($entity, 'toModel');
             $params = $reflection->getParameters();
-            
+
             expect($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
                 ->and($params[0]->hasType())->toBeTrue()
@@ -172,10 +172,10 @@ describe('CustomerEntity', function () {
                 id: 'test',
                 cpf: new CPF(CpfHelper::valid('1'))
             );
-            
+
             $reflection = new \ReflectionMethod($entity, 'updateModel');
             $params = $reflection->getParameters();
-            
+
             expect($reflection->getReturnType()->getName())->toBe('void')
                 ->and($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
@@ -186,7 +186,7 @@ describe('CustomerEntity', function () {
         it('has correct fromModel method signature', function () {
             $reflection = new \ReflectionMethod(CustomerEntity::class, 'fromModel');
             $params = $reflection->getParameters();
-            
+
             expect($reflection->isStatic())->toBeTrue()
                 ->and($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')

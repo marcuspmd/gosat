@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use App\Infrastructure\Queue\Jobs\FetchCreditOffersJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Log;
 use Tests\Helpers\CpfHelper;
 
 uses(RefreshDatabase::class);

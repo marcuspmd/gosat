@@ -14,7 +14,7 @@ describe('CustomerEntity Feature Tests', function () {
     describe('Model conversion methods integration', function () {
         it('creates entity from real Eloquent model', function () {
             // Create a real Eloquent model
-            $model = new CustomerModel();
+            $model = new CustomerModel;
             $model->id = 'customer-456';
             $model->cpf = CpfHelper::valid('2');
             $model->is_active = false;
@@ -56,7 +56,7 @@ describe('CustomerEntity Feature Tests', function () {
                 isActive: false
             );
 
-            $providedModel = new CustomerModel();
+            $providedModel = new CustomerModel;
             $providedModel->existing_field = 'should_remain';
 
             $result = $entity->toModel($providedModel);
@@ -76,7 +76,7 @@ describe('CustomerEntity Feature Tests', function () {
             );
 
             // Create a model with existing data
-            $model = new CustomerModel();
+            $model = new CustomerModel;
             $model->id = 'original-id'; // Should remain unchanged
             $model->cpf = CpfHelper::valid('1'); // Should be updated
             $model->is_active = true; // Should be updated

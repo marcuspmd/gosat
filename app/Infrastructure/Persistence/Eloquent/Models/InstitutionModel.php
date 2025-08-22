@@ -4,15 +4,26 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Persistence\Eloquent\Models;
 
+use Database\Factories\InstitutionModelFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InstitutionModel extends Model
 {
+    use HasFactory;
     use HasUuids;
 
     protected $table = 'institutions';
+
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): InstitutionModelFactory
+    {
+        return InstitutionModelFactory::new();
+    }
 
     protected $fillable = [
         'id',

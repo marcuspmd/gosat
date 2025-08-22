@@ -29,7 +29,7 @@ class CreditSimulationResource extends JsonResource
             'status' => $this->resource->status,
             'message' => $this->resource->message,
             'best_offer' => $this->resource->getBestSimulation(),
-            'generated_at' => (new \DateTimeImmutable())->format('c'),
+            'generated_at' => (new \DateTimeImmutable)->format('c'),
             'links' => [
                 'search' => '/api/v1/credit',
                 'index' => '/api/v1/credit',

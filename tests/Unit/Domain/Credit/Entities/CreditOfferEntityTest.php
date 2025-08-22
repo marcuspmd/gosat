@@ -355,7 +355,7 @@ describe('CreditOfferEntity', function () {
 
             $reflection = new \ReflectionMethod($entity, 'updateModel');
             $params = $reflection->getParameters();
-            
+
             expect($reflection->getReturnType()->getName())->toBe('void')
                 ->and($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
@@ -377,10 +377,10 @@ describe('CreditOfferEntity', function () {
                 minInstallments: new InstallmentCount(6),
                 maxInstallments: new InstallmentCount(24)
             );
-            
+
             $reflection = new \ReflectionMethod($entity, 'toModel');
             $params = $reflection->getParameters();
-            
+
             expect($params)->toHaveCount(1)
                 ->and($params[0]->getName())->toBe('model')
                 ->and($params[0]->hasType())->toBeTrue()

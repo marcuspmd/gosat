@@ -30,8 +30,8 @@ final class CreditOfferEntity
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
-        $this->createdAt ??= new DateTimeImmutable();
-        $this->updatedAt ??= new DateTimeImmutable();
+        $this->createdAt ??= new DateTimeImmutable;
+        $this->updatedAt ??= new DateTimeImmutable;
 
     }
 
@@ -82,7 +82,7 @@ final class CreditOfferEntity
 
     public function toModel(?CreditOfferModel $model = null): CreditOfferModel
     {
-        $model = $model ?? new CreditOfferModel();
+        $model = $model ?? new CreditOfferModel;
         $model->id = $this->id;
         $model->customer_id = $this->customer->id;
         $model->institution_id = $this->institution->id;

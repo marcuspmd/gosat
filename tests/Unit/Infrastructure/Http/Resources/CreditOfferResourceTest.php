@@ -60,7 +60,7 @@ describe('CreditOfferResource', function () {
 
     it('converts entity to array with correct structure', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -78,13 +78,13 @@ describe('CreditOfferResource', function () {
                 'status_label',
                 'error_message',
                 'created_at',
-                'updated_at'
+                'updated_at',
             ]);
     });
 
     it('includes correct basic offer information', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -95,7 +95,7 @@ describe('CreditOfferResource', function () {
 
     it('includes institution information', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -105,7 +105,7 @@ describe('CreditOfferResource', function () {
 
     it('includes modality information', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -116,7 +116,7 @@ describe('CreditOfferResource', function () {
 
     it('includes amount information with cents and fallback formatting', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -129,7 +129,7 @@ describe('CreditOfferResource', function () {
 
     it('includes installments information', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -140,7 +140,7 @@ describe('CreditOfferResource', function () {
 
     it('includes interest rate information with fallback values', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -151,7 +151,7 @@ describe('CreditOfferResource', function () {
 
     it('includes calculated values with fallback defaults', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -159,7 +159,7 @@ describe('CreditOfferResource', function () {
             'monthly_payment',
             'total_amount',
             'total_interest',
-            'effective_rate'
+            'effective_rate',
         ])
             ->and($array['calculated_values']['monthly_payment'])->toHaveKeys(['cents', 'formatted'])
             ->and($array['calculated_values']['total_amount'])->toHaveKeys(['cents', 'formatted'])
@@ -168,7 +168,7 @@ describe('CreditOfferResource', function () {
 
     it('includes formatted timestamps', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -194,7 +194,7 @@ describe('CreditOfferResource', function () {
         );
 
         $resource = new CreditOfferResource($creditOfferWithoutError);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -217,7 +217,7 @@ describe('CreditOfferResource', function () {
         );
 
         $resource = new CreditOfferResource($creditOfferWithoutRequestId);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 
@@ -226,7 +226,7 @@ describe('CreditOfferResource', function () {
 
     it('provides fallback values for nullable properties', function () {
         $resource = new CreditOfferResource($this->creditOffer);
-        $request = new Request();
+        $request = new Request;
 
         $array = $resource->toArray($request);
 

@@ -59,13 +59,13 @@ describe('CPF Value Object', function () {
 
     test('returns masked CPF correctly', function () {
         $cpf = new CPF('12345678909');
-        
+
         expect($cpf->masked())->toBe('123.***.***-09');
     });
 
     test('returns CPF as string', function () {
         $cpf = new CPF('12345678909');
-        
+
         expect($cpf->asString())->toBe('12345678909');
     });
 
@@ -73,7 +73,7 @@ describe('CPF Value Object', function () {
         // Test cases that trigger the regex validation path (linha 54)
         expect(fn () => new CPF('33333333333'))
             ->toThrow(InvalidArgumentException::class, 'CPF não pode ter todos os dígitos iguais');
-            
+
         expect(fn () => new CPF('55555555555'))
             ->toThrow(InvalidArgumentException::class, 'CPF não pode ter todos os dígitos iguais');
     });
@@ -82,15 +82,15 @@ describe('CPF Value Object', function () {
         // Test a CPF that would pass initial validations but fail check digit validation (linha 64)
         expect(fn () => new CPF('12345678901')) // Invalid check digits
             ->toThrow(InvalidArgumentException::class, 'CPF inválido');
-            
-        expect(fn () => new CPF('98765432111')) // Invalid check digits  
+
+        expect(fn () => new CPF('98765432111')) // Invalid check digits
             ->toThrow(InvalidArgumentException::class, 'CPF inválido');
     });
 
     test('equals method with different CPFs', function () {
         $cpf1 = new CPF('12345678909');
         $cpf2 = new CPF('11144477735');
-        
+
         // Test linha 73 - different CPF values
         expect($cpf1->equals($cpf2))->toBeFalse();
     });

@@ -57,7 +57,7 @@ describe('CreditOfferEntity Feature Tests', function () {
             );
 
             // Create a real Eloquent model
-            $model = new CreditOfferModel();
+            $model = new CreditOfferModel;
             $model->id = 'original-id';
             $model->customer_id = 'old-customer';
             $model->institution_id = 'old-institution';
@@ -104,7 +104,7 @@ describe('CreditOfferEntity Feature Tests', function () {
                 errorMessage: null
             );
 
-            $model = new CreditOfferModel();
+            $model = new CreditOfferModel;
             $model->request_id = 'will-be-null';
             $model->error_message = 'will-be-null';
 
@@ -121,14 +121,14 @@ describe('CreditOfferEntity Feature Tests', function () {
     describe('fromModel method integration', function () {
         it('creates entity from real Eloquent models with relationships', function () {
             // Create real Eloquent models with relationships
-            $customerModel = new CustomerModel();
+            $customerModel = new CustomerModel;
             $customerModel->id = 'customer-789';
             $customerModel->cpf = CpfHelper::valid('2');
             $customerModel->is_active = true;
             $customerModel->created_at = new \DateTimeImmutable('2024-01-01');
             $customerModel->updated_at = new \DateTimeImmutable('2024-01-01');
 
-            $institutionModel = new InstitutionModel();
+            $institutionModel = new InstitutionModel;
             $institutionModel->id = 'institution-123';
             $institutionModel->name = 'Test Bank';
             $institutionModel->slug = 'test-bank';
@@ -136,7 +136,7 @@ describe('CreditOfferEntity Feature Tests', function () {
             $institutionModel->created_at = new \DateTimeImmutable('2024-01-01');
             $institutionModel->updated_at = new \DateTimeImmutable('2024-01-01');
 
-            $modalityModel = new CreditModalityModel();
+            $modalityModel = new CreditModalityModel;
             $modalityModel->id = 'modality-456';
             $modalityModel->standard_code = 'personal-credit';
             $modalityModel->name = 'Personal Credit';
@@ -144,7 +144,7 @@ describe('CreditOfferEntity Feature Tests', function () {
             $modalityModel->created_at = new \DateTimeImmutable('2024-01-01');
             $modalityModel->updated_at = new \DateTimeImmutable('2024-01-01');
 
-            $offerModel = new CreditOfferModel();
+            $offerModel = new CreditOfferModel;
             $offerModel->id = 'offer-789';
             $offerModel->customer_id = 'customer-789';
             $offerModel->institution_id = 'institution-123';
@@ -234,7 +234,7 @@ describe('CreditOfferEntity Feature Tests', function () {
                 maxInstallments: new InstallmentCount(84)
             );
 
-            $providedModel = new CreditOfferModel();
+            $providedModel = new CreditOfferModel;
             $providedModel->some_existing_field = 'should_remain';
 
             $result = $entity->toModel($providedModel);

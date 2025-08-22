@@ -8,11 +8,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 describe('SSEController', function () {
     beforeEach(function () {
-        $this->controller = new SSEController();
+        $this->controller = new SSEController;
     });
 
     it('returns SSE stream response with correct headers', function () {
-        $request = new Request();
+        $request = new Request;
 
         $response = $this->controller->stream($request);
 
@@ -24,7 +24,7 @@ describe('SSEController', function () {
     });
 
     it('returns response with status 200', function () {
-        $request = new Request();
+        $request = new Request;
 
         $response = $this->controller->stream($request);
 
@@ -32,7 +32,7 @@ describe('SSEController', function () {
     });
 
     it('returns response with streaming capability', function () {
-        $request = new Request();
+        $request = new Request;
 
         $response = $this->controller->stream($request);
 
@@ -51,7 +51,7 @@ describe('SSEController', function () {
     });
 
     it('maintains correct response type for SSE', function () {
-        $request = new Request();
+        $request = new Request;
 
         $response = $this->controller->stream($request);
 

@@ -351,9 +351,9 @@ describe('additional methods', function () {
         ]);
 
         $result = $this->repository->getAllCustomersWithOffers();
-        
+
         expect($result)->toBeArray();
-        if (!empty($result)) {
+        if (! empty($result)) {
             expect($result[0])->toHaveKeys(['cpf', 'offers_count', 'offers', 'available_ranges']);
             expect($result[0]['available_ranges'])->toHaveKeys(['min_amount_cents', 'max_amount_cents', 'min_installments', 'max_installments']);
         }
@@ -396,7 +396,7 @@ describe('additional methods', function () {
 
         $cpf = new CPF($cpfValue);
         $result = $this->repository->getOffersForCpf($cpf, 5);
-        
+
         expect($result)->toBeArray();
         expect(count($result))->toBeLessThanOrEqual(5);
     });
@@ -439,14 +439,14 @@ describe('additional methods', function () {
 
         $cpf = new CPF($cpfValue);
         $result = $this->repository->getSimulationOffers($cpf, 100000, 12); // Should match the offer
-        
+
         expect($result)->toBeArray();
     });
 
     it('getSimulationOffers filters by modality when provided', function () {
         $cpf = new CPF(CpfHelper::valid());
         $result = $this->repository->getSimulationOffers($cpf, 100000, 12, 'Personal Credit');
-        
+
         expect($result)->toBeArray();
     });
 
@@ -473,7 +473,7 @@ describe('additional methods', function () {
         ]);
 
         $requestId = 'test-request-123';
-        
+
         CreditOfferModel::create([
             'id' => '123e4567-e89b-12d3-a456-426614174003',
             'customer_id' => $customer->id,
@@ -489,7 +489,7 @@ describe('additional methods', function () {
 
         $count = $this->repository->countOffersByRequestId($requestId);
         expect($count)->toBe(1);
-        
+
         $countNonExistent = $this->repository->countOffersByRequestId('non-existent-request');
         expect($countNonExistent)->toBe(0);
     });
@@ -632,7 +632,7 @@ describe('save method with existing model', function () {
         ]);
 
         $offerId = '123e4567-e89b-12d3-a456-426614174003';
-        
+
         // Create initial offer
         $initialOffer = CreditOfferModel::create([
             'id' => $offerId,
@@ -644,7 +644,7 @@ describe('save method with existing model', function () {
             'monthly_interest_rate' => 2.5,
             'min_installments' => 6,
             'max_installments' => 36,
-            'request_id' => 'REQ001'
+            'request_id' => 'REQ001',
         ]);
 
         // Create entity with updated values

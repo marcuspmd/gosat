@@ -9,11 +9,11 @@ use Illuminate\Routing\Route;
 
 describe('FixSwaggerResponse', function () {
     beforeEach(function () {
-        $this->middleware = new FixSwaggerResponse();
+        $this->middleware = new FixSwaggerResponse;
     });
 
     it('forces status 200 for swagger docs JSON response', function () {
-        $request = new Request();
+        $request = new Request;
 
         // Mock route with name 'api.docs.json'
         $route = Mockery::mock(Route::class);
@@ -30,7 +30,7 @@ describe('FixSwaggerResponse', function () {
     });
 
     it('does not modify response for non-swagger routes', function () {
-        $request = new Request();
+        $request = new Request;
 
         // Mock route with different name
         $route = Mockery::mock(Route::class);
@@ -47,7 +47,7 @@ describe('FixSwaggerResponse', function () {
     });
 
     it('does not modify response when content type is not JSON', function () {
-        $request = new Request();
+        $request = new Request;
 
         $route = Mockery::mock(Route::class);
         $route->shouldReceive('getName')->andReturn('api.docs.json');
@@ -63,7 +63,7 @@ describe('FixSwaggerResponse', function () {
     });
 
     it('does not modify response when content is empty', function () {
-        $request = new Request();
+        $request = new Request;
 
         $route = Mockery::mock(Route::class);
         $route->shouldReceive('getName')->andReturn('api.docs.json');
@@ -79,7 +79,7 @@ describe('FixSwaggerResponse', function () {
     });
 
     it('does not modify response when route is null', function () {
-        $request = new Request();
+        $request = new Request;
         $request->setRouteResolver(fn () => null);
 
         $nextResponse = new Response('{"swagger": "2.0"}', 404, ['Content-Type' => 'application/json']);
@@ -92,7 +92,7 @@ describe('FixSwaggerResponse', function () {
     });
 
     it('preserves original response content and headers', function () {
-        $request = new Request();
+        $request = new Request;
 
         $route = Mockery::mock(Route::class);
         $route->shouldReceive('getName')->andReturn('api.docs.json');
@@ -101,7 +101,7 @@ describe('FixSwaggerResponse', function () {
         $originalContent = '{"swagger": "2.0", "info": {"title": "API"}}';
         $nextResponse = new Response($originalContent, 500, [
             'Content-Type' => 'application/json',
-            'X-Custom-Header' => 'test-value'
+            'X-Custom-Header' => 'test-value',
         ]);
 
         $response = $this->middleware->handle($request, function () use ($nextResponse) {
