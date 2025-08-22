@@ -161,7 +161,7 @@ describe('Credit Request API', function () {
         $response->assertStatus(202);
         $requestId = $response->json('request_id');
 
-        Queue::assertPushed(FetchCreditOffersJob::class, function ($job) use ($requestId) {
+        Queue::assertPushed(FetchCreditOffersJob::class, function ($job) {
             // Verificar apenas que o job foi criado corretamente
             return true;
         });

@@ -1,6 +1,57 @@
+# Git and version control
 .git
-vendor
-node_modules
-.DS_Store
+.gitignore
+
+# Dependencies
+vendor/
+node_modules/
+npm-debug.log*
+
+# Environment files
 .env
+.env.*
+!.env.example
+
+# Laravel specific
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/testing/
+storage/framework/views/
+bootstrap/cache/
+
+# Build artifacts
+public/build/
+public/hot
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files
+docker-compose*.yml
+Dockerfile
+
+# SSL certificates
 docker/nginx/certs
+
+# CI/CD
+.github/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Testing
+.phpunit.result.cache
+
+# Static analysis
+phpstan.neon*
+pint.json

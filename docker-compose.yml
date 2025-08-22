@@ -9,6 +9,21 @@ services:
       - COMPOSER_ALLOW_SUPERUSER=1
     networks:
       - gosat-network
+
+  node:
+    build:
+      context: ./
+      dockerfile: docker/node/Dockerfile
+    container_name: gosat-node
+    volumes:
+      - ./:/var/www/html
+      - /var/www/html/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - gosat-network
   worker:
     build:
       context: ./docker/php

@@ -1,0 +1,41 @@
+# Laravel specific
+app/
+bootstrap/
+config/
+database/
+routes/
+storage/
+tests/
+vendor/
+
+# PHP files
+*.php
+artisan
+composer.json
+composer.lock
+phpunit.xml
+phpstan.neon*
+pint.json
+
+# Docker files
+docker/
+docker-compose*.yml
+Dockerfile*
+
+# Environment
+.env*
+
+# Documentation
+docs/
+*.md
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
